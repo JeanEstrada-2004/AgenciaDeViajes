@@ -1,33 +1,58 @@
-@model AgenciaDeViajes.Models.Destino
+@model AgenciaDeViajes.Models.TourDetailsViewModel
 @{
-    ViewBag.Title = Model.nom_destino + " - Detalle del Tour";
+    ViewBag.Title = Model.Destino.nom_destino + " - Detalle del Tour";
     Layout = "_Layout";
-}
 
+    // Armar la URL del ícono aquí (solo si Clima no es null)
+    var iconUrl = Model.Clima != null
+        ? $"https://openweathermap.org/img/wn/{Model.Clima.Icon}@2x.png"
+        : "";
+}
 <section class="ftco-section">
     <div class="container">
         <div class="row justify-content-center mb-5">
             <div class="col-md-8 text-center ftco-animate">
-                <h2 class="mb-3">@Model.nom_destino</h2>
+                <h2 class="mb-3">@Model.Destino.nom_destino</h2>
             </div>
         </div>
         <div class="row">
             <div class="col-md-6 ftco-animate">
-                <img src="@Model.ImgDest_url" class="img-fluid rounded mb-4" alt="@Model.nom_destino" style="width:100%;max-height:400px;object-fit:cover;">
+                <img src="@Model.Destino.ImgDest_url" class="img-fluid rounded mb-4" alt="@Model.Destino.nom_destino" style="width:100%;max-height:400px;object-fit:cover;">
             </div>
             <div class="col-md-6 ftco-animate">
+
+                <!-- CLIMA ACTUAL -->
+                @if (Model.Clima != null)
+                {
+                    <div class="alert alert-info d-flex align-items-center mb-4">
+                        <img src="@iconUrl"
+                             alt="Clima"
+                             style="width:50px;height:50px;margin-right:10px;">
+                        <div>
+                            <strong>Clima actual en @Model.Clima.City:</strong><br />
+                            @Model.Clima.Description, @Model.Clima.Temperature &deg;C
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="alert alert-warning mb-4">No se pudo obtener el clima de la región.</div>
+                }
+                <!-- FIN CLIMA -->
+
+                <!-- ... resto igual ... -->
                 <div class="bg-light p-4 rounded mb-4">
                     <h4 class="mb-3">Descripción</h4>
-                    <p>@Model.desc_destino</p>
+                    <p>@Model.Destino.desc_destino</p>
                     <ul class="list-group mb-3">
-                        <li class="list-group-item"><strong>Precio del tour:</strong> S/. @Model.precio_tour.ToString("0.00")</li>
-                        <li class="list-group-item"><strong>Entradas disponibles:</strong> @Model.num_entradas</li>
-                        <li class="list-group-item"><strong>Duración:</strong> @Model.time_tour</li>
-                        <li class="list-group-item"><strong>ID de Región:</strong> @Model.id_region</li>
+                        <li class="list-group-item"><strong>Precio del tour:</strong> S/. @Model.Destino.precio_tour.ToString("0.00")</li>
+                        <li class="list-group-item"><strong>Entradas disponibles:</strong> @Model.Destino.num_entradas</li>
+                        <li class="list-group-item"><strong>Duración:</strong> @Model.Destino.time_tour</li>
+                        <li class="list-group-item"><strong>ID de Región:</strong> @Model.Destino.id_region</li>
                     </ul>
                 </div>
 
-                <!-- FORMULARIO DE RESERVA -->
+<!-- FORMULARIO DE RESERVA -->
                 <div class="card shadow p-4 mb-4">
                     <h5 class="mb-3 text-primary">Reserva tu experiencia</h5>
                     <form>
