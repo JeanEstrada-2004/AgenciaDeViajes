@@ -23,11 +23,12 @@ namespace AgenciaDeViajes.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // Configuración de las relaciones
+            base.OnModelCreating(modelBuilder);
+
             modelBuilder.Entity<Destino>()
                 .HasOne(d => d.Region)
                 .WithMany(r => r.Destinos)
                 .HasForeignKey(d => d.id_region);
-
             // Configuración de relaciones adicionales si es necesario
         }
 

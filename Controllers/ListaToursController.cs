@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using AgenciaDeViajes.Data;
 using AgenciaDeViajes.Models;
+using AgenciaDeViajes.Models.ViewModels;
 using AgenciaDeViajes.Services; // <--- AGREGA ESTO
 
 namespace AgenciaDeViajes.Controllers
@@ -17,14 +18,34 @@ namespace AgenciaDeViajes.Controllers
             _weatherService = weatherService;
         }
 
-        // Método para listar todas las regiones con sus destinos
         public IActionResult Destination()
         {
-            var regionesConDestinos = _context.Regiones
+            // Cargamos regiones con sus destinos desde la base de datos
+            var regionesBD = _context.Regiones
                 .Include(r => r.Destinos)
                 .ToList();
 
-            return View(regionesConDestinos);
+            // Convertimos cada Region en RegionView
+            var regionesView = regionesBD.Select(r => new RegionView
+            {
+                id_region = r.id_region,
+                num_tours = r.num_tours,
+                desc_region = r.desc_region,
+                ImgReg_url = r.ImgReg_url,
+                Destinos = r.Destinos.Select(d => new DestinoView
+                {
+                    id_destino = d.id_destino,
+                    id_region = d.id_region,
+                    nom_destino = d.nom_destino,
+                    desc_destino = d.desc_destino,
+                    precio_tour = d.precio_tour,
+                    num_entradas = d.num_entradas,
+                    time_tour = d.time_tour,
+                    ImgDest_url = d.ImgDest_url
+                }).ToList()
+            }).ToList();
+
+            return View(regionesView);
         }
 
         // Mostrar detalles de un destino con URL SEO + clima
