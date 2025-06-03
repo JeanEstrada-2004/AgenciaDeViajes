@@ -2,16 +2,19 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using AgenciaDeViajes.Data;
 using AgenciaDeViajes.Models;
+using AgenciaDeViajes.Services; // <--- AGREGA ESTO
 
 namespace AgenciaDeViajes.Controllers
 {
     public class ListaToursController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly WeatherService _weatherService;
 
-        public ListaToursController(ApplicationDbContext context)
+        public ListaToursController(ApplicationDbContext context, WeatherService weatherService)
         {
             _context = context;
+            _weatherService = weatherService;
         }
 
         // Método para listar todas las regiones con sus destinos
@@ -24,7 +27,7 @@ namespace AgenciaDeViajes.Controllers
             return View(regionesConDestinos);
         }
 
-        // Mostrar detalles de un destino con URL SEO
+        // Mostrar detalles de un destino con URL SEO + clima
         [HttpGet]
         public async Task<IActionResult> Details(string nombreSeo)
         {
@@ -33,6 +36,7 @@ namespace AgenciaDeViajes.Controllers
 
             // Busca el destino por el "slug" (nombreSeo)
             var destino = await _context.Destinos
+                .Include(d => d.Region) // Para tener acceso al nombre de la región
                 .FirstOrDefaultAsync(d =>
                     d.nom_destino.ToLower().Replace(" ", "-") == nombreSeo.ToLower()
                 );
@@ -40,7 +44,23 @@ namespace AgenciaDeViajes.Controllers
             if (destino == null)
                 return NotFound();
 
-            return View(destino);
+            // Busca el nombre de la región asociada (puede ser null si no se incluye arriba)
+            string? regionName = destino.Region?.desc_region?.Split('-')[0].Trim();
+
+            WeatherResult? clima = null;
+            if (!string.IsNullOrEmpty(regionName))
+            {
+                // Consulta clima usando la región como ciudad
+                clima = await _weatherService.GetWeatherAsync(regionName);
+            }
+
+            var viewModel = new TourDetailsViewModel
+            {
+                Destino = destino,
+                Clima = clima
+            };
+
+            return View(viewModel);
         }
     }
 }

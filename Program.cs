@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using AgenciaDeViajes.Data;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using AgenciaDeViajes.Services; // <-- Asegúrate de agregar esto
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +21,9 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     });
 
 builder.Services.AddAuthorization();
+
+// === REGISTRO DEL SERVICIO DE CLIMA ===
+builder.Services.AddHttpClient<WeatherService>(); // <-- Este es el registro PRO
 
 var app = builder.Build();
 
