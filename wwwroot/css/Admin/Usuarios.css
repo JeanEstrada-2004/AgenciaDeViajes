@@ -1,0 +1,108 @@
+/* Estilos generales para la sección de usuarios */
+.container.usuarios-container {
+    padding: 2rem;
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    margin-top: 2rem;
+    margin-bottom: 3rem;
+}
+
+/* Estilo para el título */
+.container.usuarios-container h2 {
+    color: #343a40;
+    font-weight: 600;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #dee2e6;
+    margin-bottom: 2rem;
+}
+
+/* Mejoras para la tabla */
+.table.usuarios-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.table.usuarios-table thead {
+    background: linear-gradient(135deg, #6c757d, #495057);
+    color: white;
+}
+
+.table.usuarios-table th {
+    padding: 1rem;
+    text-align: left;
+    font-weight: 500;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    letter-spacing: 0.5px;
+}
+
+.table.usuarios-table td {
+    padding: 0.75rem 1rem;
+    vertical-align: middle;
+    border-top: 1px solid #e9ecef;
+}
+
+.table.usuarios-table tbody tr:nth-child(even) {
+    background-color: #f8f9fa;
+}
+
+.table.usuarios-table tbody tr:hover {
+    background-color: #e9ecef;
+    transition: background-color 0.2s ease;
+}
+
+/* Estilos para los botones */
+.btn-action {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.875rem;
+    border-radius: 0.25rem;
+    transition: all 0.2s;
+}
+
+.btn-warning {
+    background-color: #ffc107;
+    border-color: #ffc107;
+    color: #212529;
+}
+
+.btn-warning:hover {
+    background-color: #e0a800;
+    border-color: #d39e00;
+}
+
+/* Estilos para el botón de panel */
+.admin-actions {
+    margin-top: 2rem;
+    text-align: center;
+}
+
+.btn-admin-panel {
+    padding: 0.5rem 1.5rem;
+    background-color: #17a2b8;
+    border-color: #17a2b8;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-admin-panel:hover {
+    background-color: #138496;
+    border-color: #117a8b;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .table.usuarios-table {
+        display: block;
+        overflow-x: auto;
+    }
+    
+    .container.usuarios-container {
+        padding: 1rem;
+    }
+}

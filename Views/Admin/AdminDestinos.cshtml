@@ -53,7 +53,7 @@
                     <a href="@Url.Action("CreateDestino", "Admin")" class="btn btn-success">
                         <i class="fas fa-plus"></i> Agregar Destino
                     </a>
-                    <a href="@Url.Action("Index", "Admin")" class="btn btn-info">
+                    <a href="@Url.Action("Panel", "Admin")" class="btn btn-info">
                         <i class="fas fa-cog"></i> Panel Principal
                     </a>
                 </div>
@@ -62,11 +62,11 @@
             <!-- INICIO DE LOS MEJORES DESTINOS DE VIAJE-->
             <div class="row justify-content-center pb-4">
                 <div class="col-md-12 heading-section text-center ftco-animate">
-                    <h2 class="mb-4">Administración de Destinos</h2>
+                    <h2 class="mb-4">Administración de Regiones</h2>
                 </div>
             </div>
             <div class="row">
-                @foreach (var region in Model.Take(4))
+                @foreach (var region in Model)
                 {
                     <div class="col-md-3 ftco-animate">
                         <div class="project-destination">
@@ -96,7 +96,7 @@
             <!-- SECCIÓN DE LA LISTA DE DESTINOS -->
             <div class="row justify-content-center pb-4">
                 <div class="col-md-12 heading-section text-center ftco-animate">
-                    <h2 class="mb-4">Administración de Tours</h2>
+                    <h2 class="mb-4">Administración de Destinos</h2>
                 </div>
             </div>
             <div class="row">

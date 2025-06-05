@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
 using AgenciaDeViajes.Data;
 using AgenciaDeViajes.Models;
+using AgenciaDeViajes.ViewModels;
+
 
 namespace AgenciaDeViajes.Controllers
 {
@@ -178,5 +180,84 @@ namespace AgenciaDeViajes.Controllers
             }
             return RedirectToAction(nameof(AdminDestinos));
         }
+
+        // ============================
+        // Visualizar Panel del Admin
+        // ============================
+        public IActionResult Panel()
+        {
+            ViewBag.TotalUsuarios = _context.Usuarios.Count();
+            ViewBag.Administradores = _context.Usuarios.Count(u => u.Rol == "Admin");
+            ViewBag.Clientes = _context.Usuarios.Count(u => u.Rol == "Cliente");
+            ViewBag.TotalRegiones = _context.Regiones.Count();
+            ViewBag.TotalDestinos = _context.Destinos.Count();
+            return View();
+        }
+
+        // ============================
+        // Ver usuarios registrados
+        // ============================
+        public IActionResult VerUsuarios()
+        {
+            var usuarios = _context.Usuarios.ToList();
+            return View(usuarios);
+        }
+
+        // ============================
+        // GET: Editar Rol de Usuario
+        // ============================
+        [HttpGet]
+        public IActionResult EditarRol(int id)
+        {
+            var usuario = _context.Usuarios.Find(id);
+            if (usuario == null)
+                return NotFound();
+
+            return View(usuario);
+        }
+
+        // ============================
+        // POST: Editar Rol de Usuario
+        // ============================
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult EditarRol(int id, string nuevoRol)
+        {
+            var usuario = _context.Usuarios.Find(id);
+            if (usuario == null)
+                return NotFound();
+
+            usuario.Rol = nuevoRol;
+            _context.SaveChanges();
+
+            return RedirectToAction(nameof(VerUsuarios));
+        }
+
+
+        // ============================
+        // Estadísticas del Admin
+        // ============================
+        public IActionResult Estadisticas()
+        {
+            var usuarios = _context.Usuarios.ToList();
+            var agrupadoPorMes = usuarios
+                .GroupBy(u => new { u.FechaRegistro.Year, u.FechaRegistro.Month })
+                .OrderBy(g => g.Key.Year).ThenBy(g => g.Key.Month)
+                .Select(g => new {
+                    Mes = $"{g.Key.Month:D2}/{g.Key.Year}",
+                    Total = g.Count()
+                }).ToList();
+
+            var viewModel = new UsuariosPorMesViewModel
+            {
+                Meses = agrupadoPorMes.Select(x => x.Mes).ToList(),
+                Totales = agrupadoPorMes.Select(x => x.Total).ToList()
+            };
+
+            return View(viewModel);
+        }
+
+
     }
+
 }

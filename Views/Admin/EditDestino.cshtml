@@ -1,0 +1,59 @@
+@model AgenciaDeViajes.Models.Destino
+@{
+    ViewData["Title"] = "Editar Destino";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.HideHeaderFooter = true;
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/Admin/EditDestino.css" />
+}
+
+<div class="container mt-5">
+    <h2 class="mb-4">Editar Destino</h2>
+
+    <form asp-action="EditDestino" method="post">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="id_destino" />
+
+        <div class="mb-3">
+            <label asp-for="nom_destino" class="form-label">Nombre del destino</label>
+            <input asp-for="nom_destino" class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="desc_destino" class="form-label">Descripción</label>
+            <textarea asp-for="desc_destino" class="form-control"></textarea>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="ImgDest_url" class="form-label">URL Imagen</label>
+            <input asp-for="ImgDest_url" class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="precio_tour" class="form-label">Precio</label>
+            <input asp-for="precio_tour" class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="num_entradas" class="form-label">Número de entradas</label>
+            <input asp-for="num_entradas" class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="time_tour" class="form-label">Duración</label>
+            <input asp-for="time_tour" class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="id_region" class="form-label">Región</label>
+            <select asp-for="id_region" class="form-control" asp-items="@(new SelectList(ViewBag.Regiones, "id_region", "desc_region"))">
+                <option value="">Seleccione una región</option>
+            </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+        <a href="@Url.Action("AdminDestinos", "Admin")" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>

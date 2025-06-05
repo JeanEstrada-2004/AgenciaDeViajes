@@ -1,0 +1,38 @@
+@model AgenciaDeViajes.Models.Usuario
+@{
+    ViewData["Title"] = "Editar Rol de Usuario";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.HideHeaderFooter = true;
+}
+
+<div class="container mt-5">
+    <h2>Editar Rol</h2>
+    <hr />
+
+    <form asp-action="EditarRol" method="post">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="id" value="@Model.IdUsuario" />
+
+        <div class="mb-3">
+            <label class="form-label">Correo</label>
+            <input type="email" class="form-control" value="@Model.NombreUsuario" disabled />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Rol actual</label>
+            <input type="text" class="form-control" value="@Model.Rol" disabled />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Nuevo Rol</label>
+            <select name="nuevoRol" class="form-select" required>
+                <option value="">-- Seleccionar Rol --</option>
+                <option value="Cliente">Cliente</option>
+                <option value="Admin">Admin</option>
+            </select>
+        </div>
+
+        <button type="submit" class="btn btn-success">Guardar Cambios</button>
+        <a asp-action="VerUsuarios" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>

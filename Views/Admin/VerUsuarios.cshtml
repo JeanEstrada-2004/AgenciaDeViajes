@@ -1,0 +1,55 @@
+@model List<AgenciaDeViajes.Models.Usuario>
+@{
+    ViewData["Title"] = "Gestión de Usuarios";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.HideHeaderFooter = true;
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/Admin/Usuarios.css" />
+}
+
+
+<div class="container usuarios-container mt-5">
+    <h2 class="mb-4">Usuarios Registrados</h2>
+
+    <table class="table usuarios-table table-bordered table-striped">
+        <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Correo</th>
+                <th>Nombre Completo</th>
+                <th>DNI</th>
+                <th>Teléfono</th>
+                <th>Rol</th>
+                <th>Método</th>
+                <th>Fecha Registro</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var usuario in Model)
+            {
+                <tr>
+                    <td>@usuario.IdUsuario</td>
+                    <td>@usuario.NombreUsuario</td>
+                    <td>@usuario.NombreCompleto</td>
+                    <td>@usuario.DNI</td>
+                    <td>@usuario.Telefono</td>
+                    <td>@usuario.Rol</td>
+                    <td>@usuario.MetodoRegistro</td>
+                    <td>@usuario.FechaRegistro.ToShortDateString()</td>
+                    <td>
+                        <a asp-action="EditarRol" asp-route-id="@usuario.IdUsuario" class="btn btn-sm btn-warning btn-action">Editar Rol</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<div class="admin-actions">
+    <a href="@Url.Action("Panel", "Admin")" class="btn btn-info btn-admin-panel">
+        <i class="fas fa-cog"></i> Panel Principal
+    </a>
+</div>

@@ -51,14 +51,6 @@
                                         <li><a class="nav-link text-dark" asp-area="" asp-controller="ListaTours" asp-action="destination">Lista de Tours</a></li>
                                         <li><a class="nav-link text-dark" asp-area="" asp-controller="Blog" asp-action="Index">Blog</a></li>
                                         <li><a class="nav-link text-dark" asp-area="" asp-controller="Contacto" asp-action="Index">Contacto</a></li>
-                                        @if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
-                                        {
-                                            <li class="nav-item">
-                                                <a href="@Url.Action("AdminDestinos", "Admin")" class="nav-link">
-                                                    <i class="fas fa-tools"></i> ADMIN TOURS
-                                                </a>
-                                            </li>
-                                        }
                                     </ul>
                                 </div>
                             </nav>
@@ -82,12 +74,21 @@
                                     @if (User.Identity.IsAuthenticated)
                                     {
                                         <div class="d-flex align-items-center">
-                                            <!-- Botón Mi Cuenta como icono -->
-                                            <a asp-controller="Cuenta" asp-action="Perfil" class="btn btn-icon me-2" title="Mi Cuenta">
-                                                <i class="fas fa-user-circle fa-lg text-info"></i>
-                                            </a>
-                                            
-                                            <!-- Botón Cerrar Sesión como icono -->
+                                            <!-- Botón Mi Cuenta dinámico según rol -->
+                                            @if (User.IsInRole("Admin"))
+                                            {
+                                                <a asp-controller="Admin" asp-action="Panel" class="btn btn-icon me-2" title="Panel de Administración">
+                                                    <i class="fas fa-user-cog fa-lg text-warning"></i>
+                                                </a>
+                                            }
+                                            else
+                                            {
+                                                <a asp-controller="Cuenta" asp-action="Perfil" class="btn btn-icon me-2" title="Mi Cuenta">
+                                                    <i class="fas fa-user-circle fa-lg text-info"></i>
+                                                </a>
+                                            }
+
+                                            <!-- Botón Cerrar Sesión -->
                                             <form asp-controller="Login" asp-action="Logout" method="post" class="d-inline">
                                                 @Html.AntiForgeryToken()
                                                 <button type="submit" class="btn btn-icon" title="Cerrar sesión">
@@ -96,6 +97,7 @@
                                             </form>
                                         </div>
                                     }
+
                                     else
                                     {
                                         <a class="tg-btn-header" asp-controller="Login" asp-action="Index">

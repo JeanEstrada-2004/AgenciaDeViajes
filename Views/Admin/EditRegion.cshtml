@@ -1,0 +1,37 @@
+@model AgenciaDeViajes.Models.Region
+@{
+    ViewData["Title"] = "Editar Región";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.HideHeaderFooter = true;
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/Admin/EditRegion.css" />
+}
+
+<div class="container mt-5">
+    <h2 class="mb-4">Editar Región</h2>
+
+    <form asp-action="EditRegion" method="post">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="id_region" />
+
+        <div class="mb-3">
+            <label asp-for="desc_region" class="form-label">Descripción</label>
+            <input asp-for="desc_region" class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="num_tours" class="form-label">Número de Tours</label>
+            <input asp-for="num_tours" class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="ImgReg_url" class="form-label">URL Imagen</label>
+            <input asp-for="ImgReg_url" class="form-control" />
+        </div>
+
+        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+        <a href="@Url.Action("AdminDestinos", "Admin")" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>

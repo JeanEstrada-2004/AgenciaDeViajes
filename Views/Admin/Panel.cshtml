@@ -1,0 +1,148 @@
+@{
+    ViewData["Title"] = "Panel de Administración";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.HideHeaderFooter = true;
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/Admin/Panel.css" />
+}
+
+<div class="admin-panel-container">
+    <div class="admin-panel-header">
+        <h1 class="admin-title">Panel de Administración</h1>
+        <div class="admin-welcome">
+            <img src="https://ui-avatars.com/api/?name=@User.Identity.Name&background=random" class="admin-avatar" alt="Avatar">
+            <div>
+                <p class="welcome-text">Bienvenido, <span>@User.Identity.Name</span></p>
+                <p class="last-login">Último acceso: @DateTime.Now.ToString("dd/MM/yyyy HH:mm")</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="stats-container">
+        <div class="stats-grid">
+            <div class="stat-card users-stat">
+                <div class="stat-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>@ViewBag.TotalUsuarios</h3>
+                    <p>Usuarios</p>
+                </div>
+            </div>
+            
+            <div class="stat-card clients-stat">
+                <div class="stat-icon">
+                    <i class="fas fa-user-tie"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>@ViewBag.Clientes</h3>
+                    <p>Clientes</p>
+                </div>
+            </div>
+            
+            <div class="stat-card admins-stat">
+                <div class="stat-icon">
+                    <i class="fas fa-user-shield"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>@ViewBag.Administradores</h3>
+                    <p>Administradores</p>
+                </div>
+            </div>
+            
+            <div class="stat-card regions-stat">
+                <div class="stat-icon">
+                    <i class="fas fa-map-marked-alt"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>@ViewBag.TotalRegiones</h3>
+                    <p>Regiones</p>
+                </div>
+            </div>
+            
+            <div class="stat-card destinations-stat">
+                <div class="stat-icon">
+                    <i class="fas fa-umbrella-beach"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>@ViewBag.TotalDestinos</h3>
+                    <p>Destinos</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="actions-container">
+        <h2 class="section-title">Acciones Disponibles</h2>
+        <div class="actions-grid">
+            <div class="action-card tours-action">
+                <div class="card-content">
+                    <i class="fas fa-route card-icon"></i>
+                    <h3>Gestionar Tours</h3>
+                    <p>Administra regiones y destinos turísticos</p>
+                    <a href="@Url.Action("AdminDestinos", "Admin")" class="action-btn">
+                        <i class="fas fa-arrow-right"></i> Acceder
+                    </a>
+                </div>
+            </div>
+            
+            <div class="action-card blog-action">
+                <div class="card-content">
+                    <i class="fas fa-calendar-alt card-icon"></i>
+                    <h3>Blog y Festividades</h3>
+                    <p>Gestiona contenido y eventos especiales</p>
+                    <a href="#" class="action-btn disabled">
+                        <i class="fas fa-clock"></i> Próximamente
+                    </a>
+                </div>
+            </div>
+            
+            <div class="action-card users-action">
+                <div class="card-content">
+                    <i class="fas fa-user-cog card-icon"></i>
+                    <h3>Usuarios</h3>
+                    <p>Administra usuarios y permisos</p>
+                    <a href="@Url.Action("VerUsuarios", "Admin")" class="action-btn">
+                        <i class="fas fa-arrow-right"></i> Acceder
+                    </a>
+                </div>
+            </div>
+            
+            <div class="action-card stats-action">
+                <div class="card-content">
+                    <i class="fas fa-chart-line card-icon"></i>
+                    <h3>Estadísticas</h3>
+                    <p>Métricas y análisis del sistema</p>
+                    <a href="@Url.Action("Estadisticas", "Admin")" class="action-btn">
+                        <i class="fas fa-arrow-right"></i> Acceder
+                    </a>
+                </div>
+            </div>
+            
+            <div class="action-card settings-action">
+                <div class="card-content">
+                    <i class="fas fa-cogs card-icon"></i>
+                    <h3>Configuraciones</h3>
+                    <p>Ajustes del sistema</p>
+                    <a href="#" class="action-btn disabled">
+                        <i class="fas fa-clock"></i> Próximamente
+                    </a>
+                </div>
+            </div>
+            
+            <div class="action-card quick-action">
+                <div class="card-content">
+                    <i class="fas fa-bolt card-icon"></i>
+                    <h3>Acciones Rápidas</h3>
+                    <div class="quick-buttons">
+                        <a href="#" class="quick-btn"><i class="fas fa-plus"></i> Nuevo</a>
+                        <a href="#" class="quick-btn"><i class="fas fa-file-export"></i> Exportar</a>
+                        <a href="#" class="quick-btn"><i class="fas fa-bell"></i> Notificar</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
