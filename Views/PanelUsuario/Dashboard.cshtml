@@ -1,0 +1,56 @@
+@{
+    ViewBag.Title = "Dashboard";
+    Layout = "~/Views/Shared/_LayoutUsuario.cshtml";
+    ViewBag.Active = "Dashboard";
+}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col">
+            <h2 class="fw-bold mb-3"><i class="bi bi-house-door"></i> Dashboard</h2>
+            <p class="text-muted">¡Bienvenido a tu panel! Aquí tienes un resumen de tus próximas reservas y notificaciones.</p>
+        </div>
+    </div>
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-calendar3 fs-1 text-primary me-3"></i>
+                        <div>
+                            <h6 class="mb-1">Próxima reserva</h6>
+                            <span class="fw-bold text-success">Machu Picchu - 10/07/2024</span>
+                            <div class="text-muted small">2 adultos, 1 niño</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-wallet2 fs-1 text-warning me-3"></i>
+                        <div>
+                            <h6 class="mb-1">Pagos pendientes</h6>
+                            <span class="fw-bold text-danger">Ninguno</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-bell fs-1 text-info me-3"></i>
+                        <div>
+                            <h6 class="mb-1">Notificaciones</h6>
+                            <span class="fw-bold">1 nuevo mensaje</span>
+                            <div class="text-muted small">¡Tu reserva fue confirmada!</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

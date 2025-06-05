@@ -1,0 +1,28 @@
+@{
+    ViewBag.Title = "Notificaciones";
+    Layout = "~/Views/Shared/_LayoutUsuario.cshtml";
+    ViewBag.Active = "Notificaciones";
+}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col">
+            <h2 class="fw-bold mb-3"><i class="bi bi-bell"></i> Notificaciones</h2>
+        </div>
+    </div>
+    <div class="card shadow-sm border-0">
+        <div class="card-body">
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item">
+                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                    ¡Tu reserva en Machu Picchu fue confirmada!
+                    <span class="text-muted float-end small">hace 2 horas</span>
+                </li>
+                <li class="list-group-item">
+                    <i class="bi bi-info-circle-fill text-primary me-2"></i>
+                    Se actualizó la política de cancelación.
+                    <span class="text-muted float-end small">ayer</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
