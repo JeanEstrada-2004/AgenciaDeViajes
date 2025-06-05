@@ -1,52 +1,40 @@
 using Microsoft.EntityFrameworkCore;
 using AgenciaDeViajes.Data;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.Google;
-using AgenciaDeViajes.Services; // <-- Servicio de clima
+using AgenciaDeViajes.Services; // <-- Asegúrate de agregar esto
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Agregar servicios MVC
 builder.Services.AddControllersWithViews();
 
-// ✅ Usa la cadena de conexión desde las variables de entorno
+// Configuración de la cadena de conexión (usa Render o local)
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(connectionString));
 
-// ✅ Habilita autenticación con cookies y Google
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
-})
-.AddCookie(options =>
-{
-    options.LoginPath = "/Login/Index";
-})
-.AddGoogle(options =>
-{
-    options.ClientId = builder.Configuration["Authentication:Google:ClientId"] 
-        ?? throw new InvalidOperationException("Google ClientId no configurado");
-    options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"] 
-        ?? throw new InvalidOperationException("Google ClientSecret no configurado");
-});
+// Habilitar autenticación con cookies
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options => {
+        options.LoginPath = "/Login/Index";
+    });
 
-builder.Services.AddAuthorization(); // Roles opcionales
+builder.Services.AddAuthorization();
 
 // === REGISTRO DEL SERVICIO DE CLIMA ===
-builder.Services.AddHttpClient<WeatherService>(); // <-- Registro del servicio HTTP
+builder.Services.AddHttpClient<WeatherService>(); // <-- Este es el registro PRO
 
 var app = builder.Build();
 
-// ✅ Ejecuta migraciones en producción (por ejemplo, Render)
+// Ejecutar migraciones automáticamente en producción
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    db.Database.Migrate();
+    db.Database.Migrate(); // Esto crea/modifica tablas en Render
 }
 
-// ✅ Configuración del pipeline HTTP
+// Configuración del pipeline HTTP
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
@@ -61,10 +49,24 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
-
 app.UseAuthentication();
 app.UseAuthorization();
 
+// === RUTA EXPLÍCITA PARA DESTINATION ===
+app.MapControllerRoute(
+    name: "destinosLista",
+    pattern: "ListaTours/Destination",
+    defaults: new { controller = "ListaTours", action = "Destination" }
+);
+
+// === RUTA SEO PARA DETALLES DE DESTINO ===
+app.MapControllerRoute(
+    name: "detallesDestinoSeo",
+    pattern: "ListaTours/{nombreSeo}",
+    defaults: new { controller = "ListaTours", action = "Details" }
+);
+
+// === RUTA POR DEFECTO ===
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
