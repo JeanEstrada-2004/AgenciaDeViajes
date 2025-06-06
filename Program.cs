@@ -25,6 +25,9 @@ builder.Services.AddAuthorization();
 // === REGISTRO DEL SERVICIO DE CLIMA ===
 builder.Services.AddHttpClient<WeatherService>(); // <-- Este es el registro PRO
 
+// === HABILITAR SESSION ===
+builder.Services.AddSession(); // <-- LÍNEA CLAVE
+
 var app = builder.Build();
 
 // Ejecutar migraciones automáticamente en producción
@@ -47,6 +50,9 @@ else
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+
+// === HABILITAR SESSION EN EL PIPELINE ===
+app.UseSession(); // <-- LÍNEA CLAVE
 
 app.UseRouting();
 app.UseAuthentication();

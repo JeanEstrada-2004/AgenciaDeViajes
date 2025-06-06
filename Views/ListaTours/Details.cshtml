@@ -203,48 +203,50 @@
 
                <div class="card shadow p-4 mb-4">
                     <h5 class="mb-3 text-primary">Reserva tu experiencia</h5>
-                    <form>
-                        <div class="mb-3">
-                            <label for="fechaTour" class="form-label">Fecha del tour</label>
-                            <input type="date" class="form-control" id="fechaTour" name="fechaTour" min="@DateTime.Today.ToString("yyyy-MM-dd")" required>
-                        </div>
-                        <div class="row mb-3">
-                            <div class="col">
-                                <label for="adultos" class="form-label">Adultos</label>
-                                <input type="number" class="form-control" id="adultos" name="adultos" value="1" min="1" max="20" required>
+                        <form asp-controller="CarritoCompra" asp-action="IniciarReserva" method="post">
+                            <input type="hidden" name="DestinoId" value="@Model.Destino.id_destino" />
+                            <input type="hidden" name="DestinoNombre" value="@Model.Destino.nom_destino" />
+                            <input type="hidden" name="DestinoImagenUrl" value="@Model.Destino.ImgDest_url" />
+                            <input type="hidden" name="DestinoDuracion" value="@Model.Destino.time_tour" />
+                            <input type="hidden" name="PrecioTour" value="@Model.Destino.precio_tour" />
+
+                            <div class="mb-3">
+                                <label for="fechaTour" class="form-label">Fecha del tour</label>
+                                <input type="date" class="form-control" id="fechaTour" name="FechaElegida" min="@DateTime.Today.ToString("yyyy-MM-dd")" required>
                             </div>
-                            <div class="col">
-                                <label for="ninos" class="form-label">Niños</label>
-                                <input type="number" class="form-control" id="ninos" name="ninos" value="0" min="0" max="20">
+                            <div class="row mb-3">
+                                <div class="col">
+                                    <label for="adultos" class="form-label">Adultos</label>
+                                    <input type="number" class="form-control" id="adultos" name="CantidadAdultos" value="1" min="1" max="20" required>
+                                </div>
+                                <div class="col">
+                                    <label for="ninos" class="form-label">Niños</label>
+                                    <input type="number" class="form-control" id="ninos" name="CantidadNinos" value="0" min="0" max="20">
+                                </div>
                             </div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Servicios adicionales</label>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="servicios" value="Recojo del hospedaje" id="servRecojo">
-                                <label class="form-check-label" for="servRecojo">
-                                    Recojo del hospedaje
-                                </label>
+                            <div class="mb-3">
+                                <label class="form-label">Servicios adicionales</label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="ServiciosAdicionales" value="Recojo del hospedaje" id="servRecojo">
+                                    <label class="form-check-label" for="servRecojo">
+                                        Recojo del hospedaje
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="ServiciosAdicionales" value="Desayuno incluido" id="servDesayuno">
+                                    <label class="form-check-label" for="servDesayuno">
+                                        Desayuno incluido
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="ServiciosAdicionales" value="Guía bilingüe" id="servGuia">
+                                    <label class="form-check-label" for="servGuia">
+                                        Guía bilingüe
+                                    </label>
+                                </div>
                             </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="servicios" value="Desayuno incluido" id="servDesayuno">
-                                <label class="form-check-label" for="servDesayuno">
-                                    Desayuno incluido
-                                </label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="servicios" value="Guía bilingüe" id="servGuia">
-                                <label class="form-check-label" for="servGuia">
-                                    Guía bilingüe
-                                </label>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label for="comentarios" class="form-label">Comentarios adicionales</label>
-                            <textarea class="form-control" id="comentarios" name="comentarios" rows="2" placeholder="¿Algo que debamos saber?"></textarea>
-                        </div>
-                        <a href="http://localhost:5195/CarritoCompra/ReservaDatos"><button type="submit" class="btn btn-primary w-100">Añadir al carrito</button></a>
-                    </form>
+                            <button type="submit" class="btn btn-primary w-100">Añadir al carrito</button>
+                        </form>
                 </div>
 
 
