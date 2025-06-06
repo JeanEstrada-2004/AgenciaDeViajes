@@ -8,167 +8,200 @@
         ? $"https://openweathermap.org/img/wn/{Model.Clima.Icon}@2x.png"
         : "";
 }
+
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+
+<style>
+    .addons-infotours {border: 1px solid #113d48;}
+    .addons-infotours i {box-shadow: 0px -4px 30px rgba(0, 0, 0, 0.07);
+    background: #4140ca;
+    color: #fff;
+    padding: 10px;
+    border-radius: 10px;
+    width: 40px;
+    height: 40px;
+    text-align: center;}
+
+    .addons-aditional {background-color: #efeefa; padding: 40px; border-radius: 20px; box-shadow: 0px -4px 30px rgba(0, 0, 0, 0.07);}
+    .addons-clima {background: #4d40ca; color: #fff; border-radius: 15px;}
+    .addons-pay {background: #fefefe; color: #000; border-radius: 15px; box-shadow: 0px -4px 30px rgba(0, 0, 0, 0.07);
+        padding: 40px; border: 1px solid #eee}
+</style>
+
+
 <section class="ftco-section">
     <div class="container">
-        <div class="row justify-content-center mb-5">
-            <div class="col-md-8 text-center ftco-animate">
-                <h2 class="mb-3">@Model.Destino.nom_destino</h2>
+
+        <div class="row justify-content-center">
+            <div class="col-md-12">
+                <img src="@Model.Destino.ImgDest_url" class="img-fluid rounded mb-4" alt="@Model.Destino.nom_destino" style="width:100%;max-height:500px;object-fit:cover;">
+                <h2 class="mb-3">Destino: @Model.Destino.nom_destino</h2>
             </div>
         </div>
 
         <div class="row">
             <div class="col-md-8">
-                aqui va lista imagenes
-            </div>
-            <div class="col-md-4">
 
-
-            <!-- Agrega esto en tu <head> si aún no tienes Bootstrap y Bootstrap Icons -->
-            <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-            <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
-
-            <style>
-                .rating-stars i {
-                    font-size: 1.5rem;
-                    color: #ccc;
-                    cursor: pointer;
-                    transition: color 0.2s;
-                }
-
-                .rating-stars i.active {
-                    color: #ffc107; /* dorado */
-                }
-
-                .review-section {
-                    background-color: #f8f9fa;
-                    border-radius: 1rem;
-                    padding: 2rem;
-                    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-                }
-
-                .rating-label {
-                    font-weight: 600;
-                    margin-bottom: 0.5rem;
-                }
-            </style>
-
-            <div class="container my-5">
-                <div class="review-section">
-                    <h4 class="mb-4 text-center">¿Cómo fue tu experiencia?</h4>
-
-                    <!-- Criterios de calificación -->
-                    <div class="mb-4">
-                        <div class="rating-label">Atención al Cliente</div>
-                        <div class="rating-stars" data-criteria="atencion">
-                            <i class="bi bi-star" data-value="1"></i>
-                            <i class="bi bi-star" data-value="2"></i>
-                            <i class="bi bi-star" data-value="3"></i>
-                            <i class="bi bi-star" data-value="4"></i>
-                            <i class="bi bi-star" data-value="5"></i>
+                <div class="addons-infotours">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <i class="fa-solid fa-map-location-dot"></i>
+                            <h5>Ubicación</h5>
+                            @Model.Destino.id_region
                         </div>
-                    </div>
-
-                    <div class="mb-4">
-                        <div class="rating-label">Calidad del Servicio</div>
-                        <div class="rating-stars" data-criteria="servicio">
-                            <i class="bi bi-star" data-value="1"></i>
-                            <i class="bi bi-star" data-value="2"></i>
-                            <i class="bi bi-star" data-value="3"></i>
-                            <i class="bi bi-star" data-value="4"></i>
-                            <i class="bi bi-star" data-value="5"></i>
+                        <div class="col-md-3">
+                            <i class="fa-regular fa-clock"></i>
+                            <h5>Duración</h5>
+                            @Model.Destino.time_tour
                         </div>
-                    </div>
-
-                    <div class="mb-4">
-                        <div class="rating-label">Responsabilidad y Seguridad</div>
-                        <div class="rating-stars" data-criteria="responsabilidad">
-                            <i class="bi bi-star" data-value="1"></i>
-                            <i class="bi bi-star" data-value="2"></i>
-                            <i class="bi bi-star" data-value="3"></i>
-                            <i class="bi bi-star" data-value="4"></i>
-                            <i class="bi bi-star" data-value="5"></i>
+                        <div class="col-md-3">
+                            <i class="fa-solid fa-ticket"></i>
+                            <h5>Entradas dsponibles</h5>
+                            @Model.Destino.num_entradas
                         </div>
-                    </div>
-
-                    <!-- Comentario -->
-                    <div class="mb-4">
-                        <label for="comentario" class="form-label fw-semibold">Comentario adicional</label>
-                        <textarea class="form-control" id="comentario" rows="4" placeholder="Cuéntanos más sobre tu experiencia..."></textarea>
-                    </div>
-
-                    <!-- Botón -->
-                    <div class="text-center">
-                        <button class="btn btn-primary px-4">Enviar Calificación</button>
+                        <div class="col-md-3">
+                            <i class="fa-solid fa-person-hiking"></i>
+                            <h5>Dificultad</h5>
+                            Moderada
+                        </div>
                     </div>
                 </div>
-            </div>
-
-            <!-- Script para activar estrellitas -->
-            <script>
-                document.querySelectorAll('.rating-stars').forEach(group => {
-                    const stars = group.querySelectorAll('i');
-                    stars.forEach(star => {
-                        star.addEventListener('click', () => {
-                            const value = parseInt(star.getAttribute('data-value'));
-                            stars.forEach(s => s.classList.remove('active'));
-                            for (let i = 0; i < value; i++) {
-                                stars[i].classList.add('active');
-                            }
-                            // Puedes almacenar el valor en una variable o input hidden aquí
-                            console.log(`Rating para ${group.dataset.criteria}: ${value}`);
-                        });
-                    });
-                });
-            </script>
 
 
 
 
-            </div>
-        </div>
-
-
-
-
-        <div class="row">
-            <div class="col-md-6 ftco-animate">
-                <img src="@Model.Destino.ImgDest_url" class="img-fluid rounded mb-4" alt="@Model.Destino.nom_destino" style="width:100%;max-height:400px;object-fit:cover;">
-            </div>
-            <div class="col-md-6 ftco-animate">
-
-                <!-- CLIMA ACTUAL -->
-                @if (Model.Clima != null)
-                {
-                    <div class="alert alert-info d-flex align-items-center mb-4">
-                        <img src="@iconUrl"
-                             alt="Clima"
-                             style="width:50px;height:50px;margin-right:10px;">
-                        <div>
-                            <strong>Clima actual en @Model.Clima.City:</strong><br />
-                            @Model.Clima.Description, @Model.Clima.Temperature &deg;C
-                        </div>
-                    </div>
-                }
-                else
-                {
-                    <div class="alert alert-warning mb-4">No se pudo obtener el clima de la región.</div>
-                }
-                <!-- FIN CLIMA -->
-
-                <!-- ... resto igual ... -->
-                <div class="bg-light p-4 rounded mb-4">
+                <div class="addons-description">
                     <h4 class="mb-3">Descripción</h4>
                     <p>@Model.Destino.desc_destino</p>
+                </div>
+
+
+
+                <div class="addons-aditional">
+                    <h4>Información de viaje</h4>
+                </div>
+
+
+
+
+
+                <div class="addons-review">
+
+                    <style>
+                        
+                        .rating-stars i {
+                            font-size: 1.5rem;
+                            color: #f4f4f4;
+                            cursor: pointer;
+                            transition: color 0.2s;
+                        }
+
+                        .rating-stars i.active {
+                            color: #ffc107; /* dorado */
+                        }
+
+                        .review-section {
+                            background-color: #113d48;
+                            border-radius: 1rem;
+                            padding: 2rem;
+                            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+                            color: #fff;
+                        }
+
+                        .rating-label {
+                            font-weight: 600;
+                            margin-bottom: 0.5rem;
+                        }
+                    </style>
+
+                    <div class="container my-5">
+                        <div class="review-section">
+                            <h4 class="mb-4 text-center">¿Cómo fue tu experiencia?</h4>
+
+                            <!-- Criterios de calificación -->
+                            <div class="mb-4">
+                                <div class="rating-label">Atención al Cliente</div>
+                                <div class="rating-stars" data-criteria="atencion">
+                                    <i class="bi bi-star" data-value="1"></i>
+                                    <i class="bi bi-star" data-value="2"></i>
+                                    <i class="bi bi-star" data-value="3"></i>
+                                    <i class="bi bi-star" data-value="4"></i>
+                                    <i class="bi bi-star" data-value="5"></i>
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <div class="rating-label">Calidad del Servicio</div>
+                                <div class="rating-stars" data-criteria="servicio">
+                                    <i class="bi bi-star" data-value="1"></i>
+                                    <i class="bi bi-star" data-value="2"></i>
+                                    <i class="bi bi-star" data-value="3"></i>
+                                    <i class="bi bi-star" data-value="4"></i>
+                                    <i class="bi bi-star" data-value="5"></i>
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <div class="rating-label">Responsabilidad y Seguridad</div>
+                                <div class="rating-stars" data-criteria="responsabilidad">
+                                    <i class="bi bi-star" data-value="1"></i>
+                                    <i class="bi bi-star" data-value="2"></i>
+                                    <i class="bi bi-star" data-value="3"></i>
+                                    <i class="bi bi-star" data-value="4"></i>
+                                    <i class="bi bi-star" data-value="5"></i>
+                                </div>
+                            </div>
+
+                            <!-- Comentario -->
+                            <div class="mb-4">
+                                <label for="comentario" class="form-label fw-semibold">Comentario adicional</label>
+                                <textarea class="form-control" id="comentario" rows="4" placeholder="Cuéntanos más sobre tu experiencia..."></textarea>
+                            </div>
+
+                            <!-- Botón -->
+                            <div class="text-center">
+                                <button class="btn btn-primary px-4">Enviar Calificación</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Script para activar estrellitas -->
+                    <script>
+                        document.querySelectorAll('.rating-stars').forEach(group => {
+                            const stars = group.querySelectorAll('i');
+                            stars.forEach(star => {
+                                star.addEventListener('click', () => {
+                                    const value = parseInt(star.getAttribute('data-value'));
+                                    stars.forEach(s => s.classList.remove('active'));
+                                    for (let i = 0; i < value; i++) {
+                                        stars[i].classList.add('active');
+                                    }
+                                    // Puedes almacenar el valor en una variable o input hidden aquí
+                                    console.log(`Rating para ${group.dataset.criteria}: ${value}`);
+                                });
+                            });
+                        });
+                    </script>
+
+                </div>
+
+
+            </div>
+
+
+            <div class="col-md-4">
+                
+                <div class="bg-light p-4 rounded mb-4">
                     <ul class="list-group mb-3">
                         <li class="list-group-item"><strong>Precio del tour:</strong> S/. @Model.Destino.precio_tour.ToString("0.00")</li>
-                        <li class="list-group-item"><strong>Entradas disponibles:</strong> @Model.Destino.num_entradas</li>
-                        <li class="list-group-item"><strong>Duración:</strong> @Model.Destino.time_tour</li>
-                        <li class="list-group-item"><strong>ID de Región:</strong> @Model.Destino.id_region</li>
                     </ul>
                 </div>
 
-<!-- FORMULARIO DE RESERVA -->
-                <div class="card shadow p-4 mb-4">
+
+
+               <div class="card shadow p-4 mb-4">
                     <h5 class="mb-3 text-primary">Reserva tu experiencia</h5>
                     <form>
                         <div class="mb-3">
@@ -213,10 +246,61 @@
                         <a href="http://localhost:5195/CarritoCompra/ReservaDatos"><button type="submit" class="btn btn-primary w-100">Añadir al carrito</button></a>
                     </form>
                 </div>
-                <!-- FIN FORMULARIO DE RESERVA -->
+
+
+                <!-- CLIMA ACTUAL -->
+                <div class="addons-clima">
+                    @if (Model.Clima != null)
+                    {
+                        <div class="alert  d-flex align-items-center mb-4">
+                            <img src="@iconUrl"
+                                alt="Clima"
+                                style="width:50px;height:50px;margin-right:10px;">
+                            <div>
+                                <strong>Clima actual en @Model.Clima.City:</strong><br />
+                                @Model.Clima.Description, @Model.Clima.Temperature &deg;C
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-warning mb-4">No se pudo obtener el clima de la región.</div>
+                    }
+                </div>
+                <!-- FIN CLIMA -->
+
+
+                <div class="addons-pay"> 
+                    <h4>Medios de pago</h4>
+                    <img src="https://arequipaturismo.com/cloud/pay-mercadopago.png">
+                </div>
+
+            </div>
+        </div>
+
+
+
+
+
+
+
+
+
+
+        <div class="row">
+ 
+            <div class="col-md-6 ftco-animate">
+
+
+
+ 
+
+ 
+               
 
                 <a asp-action="Destination" class="btn btn-secondary mt-2">Volver a la lista</a>
             </div>
         </div>
     </div>
+    
 </section>
