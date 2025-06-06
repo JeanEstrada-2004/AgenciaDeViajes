@@ -2,6 +2,11 @@
 
 @{
     ViewData["Title"] = "Blog de Viajes";
+
+    @if (User.IsInRole("Admin"))
+    {
+    ViewBag.HideHeaderFooter = true;
+    }
 }
 
 <div class="container mt-5">
@@ -10,9 +15,17 @@
             <h1 class="display-4">Blog de la Agencia de Viajes</h1>
             <p class="lead mb-0">Explora artículos, consejos, destinos y experiencias únicas.</p>
         </div>
+        @if (User.IsInRole("Admin"))
+        {
         <div>
-            <a asp-action="Create" class="btn btn-success">+ Nueva Entrada</a>
+                <a asp-action="Create" class="btn btn-success">+ Nueva Entrada</a>
         </div>
+        <div class="admin-actions">
+            <a href="@Url.Action("Panel", "Admin")" class="btn btn-info btn-admin-panel">
+                <i class="fas fa-cog"></i> Panel Principal
+            </a>
+        </div>
+        }
     </div>
 
     <hr />
@@ -30,6 +43,8 @@
                         </p>
                         <p class="card-text">@Html.Raw(entrada.Descripcion.Replace("\n", "<br />"))</p>
 
+                        @if (User.IsInRole("Admin"))
+                        {
                         <div class="d-flex gap-2 mt-3">
                             <a asp-action="Details" asp-route-id="@entrada.Id" class="btn btn-info">Ver Detalle Completo</a>
                             <a asp-action="Create" asp-route-id="@entrada.Id" class="btn btn-warning">Editar</a>
@@ -39,6 +54,12 @@
                                 <button type="submit" class="btn btn-danger">Eliminar</button>
                             </form>
                         </div>
+                        }else
+                        {
+                            <div class="mt-3">
+                                <a asp-action="Details" asp-route-id="@entrada.Id" class="btn btn-info">Ver Detalle Completo</a>
+                            </div>
+                        }
                     </div>
                 </div>
             </div>

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using AgenciaDeViajes.Data;
 using AgenciaDeViajes.Models;
+using Microsoft.AspNetCore.Authorization;
 using System;
 using System.Linq;
 
@@ -39,6 +40,7 @@ namespace AgenciaDeViajes.Controllers
         }
 
         // Mostrar formulario para crear o editar entrada
+        [Authorize(Roles = "Admin")]
         public IActionResult Create(int? id)
         {
             if (id == null)
@@ -59,6 +61,7 @@ namespace AgenciaDeViajes.Controllers
 
         // Guardar nueva entrada o actualizar existente
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         [ValidateAntiForgeryToken]
         public IActionResult Create(EntradaBlog entrada)
         {
@@ -96,6 +99,7 @@ namespace AgenciaDeViajes.Controllers
         }
 
         // Mostrar confirmación para eliminar (opcional)
+        [Authorize(Roles = "Admin")]
         public IActionResult Delete(int? id)
         {
             if (id == null)
@@ -110,6 +114,7 @@ namespace AgenciaDeViajes.Controllers
 
         // POST: Eliminar la entrada
         [HttpPost, ActionName("DeleteConfirmed")]
+        [Authorize(Roles = "Admin")]
         [ValidateAntiForgeryToken]
         public IActionResult DeleteConfirmed(int id)
         {
@@ -122,5 +127,8 @@ namespace AgenciaDeViajes.Controllers
 
             return RedirectToAction(nameof(Index));
         }
+
+
+        
     }
 }
