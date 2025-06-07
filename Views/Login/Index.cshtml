@@ -1,9 +1,8 @@
 @{
     ViewData["Title"] = "Iniciar Sesión";
     Layout = "~/Views/Shared/_Layout.cshtml";
-    ViewBag.HideHeaderFooter = true; // Esta es la clave
+    ViewBag.HideHeaderFooter = true;
 }
-
 
 @section Styles {
     <link rel="stylesheet" href="~/css/auth.css" />
@@ -16,6 +15,7 @@
         </div>
         <div class="card-body">
             <form asp-controller="Login" asp-action="Iniciar" method="post">
+                <input type="hidden" name="returnUrl" value="@ViewBag.ReturnUrl" />
                 <div class="form-group mb-3">
                     <label for="nombreUsuario">Usuario:</label>
                     <input type="text" class="form-control" name="nombreUsuario" required />
@@ -37,14 +37,13 @@
                 </a>
             </div>
 
-
             @if (ViewBag.Error != null)
             {
                 <div class="alert alert-danger mt-3">@ViewBag.Error</div>
             }
 
             <div class="auth-footer">
-                <p>¿No tienes una cuenta? <a asp-controller="Registro" asp-action="Registrar">Regístrate aquí</a></p>
+                <p>¿No tienes una cuenta? <a asp-controller="Registro" asp-action="Registrar" asp-route-returnUrl="@ViewBag.ReturnUrl">Regístrate aquí</a></p>
             </div>
         </div>
     </div>

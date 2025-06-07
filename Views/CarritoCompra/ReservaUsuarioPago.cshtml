@@ -1,103 +1,90 @@
+@model AgenciaDeViajes.Models.ReservaCarritoViewModel
 @{
     ViewBag.Title = "Reservar destino - Usuario y Pago";
     Layout = "_Layout";
+    var isAuthenticated = User.Identity.IsAuthenticated;
+    var totalAdultos = Model.CantidadAdultos;
+    var totalNinos = Model.CantidadNinos;
+    var precio = Model.PrecioTour;
+    var totalAdultosMonto = totalAdultos * precio;
+    var totalNinosMonto = totalNinos * precio;
+    var total = totalAdultosMonto + totalNinosMonto;
 }
+
 <div class="container py-5">
     <div class="row">
-        <!-- Login / Registro + Pago -->
         <div class="col-md-8">
-            <h3 class="mb-4">¡Inicia sesión o regístrate para finalizar tu compra!</h3>
-            <div class="card mb-4">
-                <div class="card-body">
-                    <ul class="nav nav-tabs" id="tabLogin" role="tablist">
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link active" id="login-tab" data-bs-toggle="tab" data-bs-target="#login" type="button" role="tab">Iniciar sesión</button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="register-tab" data-bs-toggle="tab" data-bs-target="#register" type="button" role="tab">Registrarse</button>
-                        </li>
-                    </ul>
-                    <div class="tab-content mt-3">
-                        <div class="tab-pane fade show active" id="login" role="tabpanel">
-                            <form>
-                                <div class="mb-3">
-                                    <label for="emailLogin" class="form-label">Correo electrónico</label>
-                                    <input type="email" class="form-control" id="emailLogin" placeholder="Ingresa tu correo">
-                                </div>
-                                <div class="mb-3">
-                                    <label for="passwordLogin" class="form-label">Contraseña</label>
-                                    <input type="password" class="form-control" id="passwordLogin" placeholder="Contraseña">
-                                </div>
-                                <button type="submit" class="btn btn-primary">Ingresar</button>
-                            </form>
-                        </div>
-                        <div class="tab-pane fade" id="register" role="tabpanel">
-                            <form>
-                                <div class="mb-3">
-                                    <label for="nombreReg" class="form-label">Nombre completo</label>
-                                    <input type="text" class="form-control" id="nombreReg" placeholder="Tu nombre">
-                                </div>
-                                <div class="mb-3">
-                                    <label for="emailReg" class="form-label">Correo electrónico</label>
-                                    <input type="email" class="form-control" id="emailReg" placeholder="Tu correo">
-                                </div>
-                                <div class="mb-3">
-                                    <label for="passwordReg" class="form-label">Contraseña</label>
-                                    <input type="password" class="form-control" id="passwordReg" placeholder="Contraseña">
-                                </div>
-                                <button type="submit" class="btn btn-success">Registrarse</button>
-                            </form>
-                        </div>
+            <h3 class="mb-4">¡Finaliza tu compra!</h3>
+            @if (!isAuthenticated)
+            {
+                <div class="card mb-4">
+                    <div class="card-body text-center">
+                        <h5 class="mb-3">Para continuar, inicia sesión o regístrate</h5>
+                        <a class="btn btn-primary me-2"
+                           href="/Login?returnUrl=/CarritoCompra/ReservaUsuarioPago">Iniciar sesión</a>
+                        <a class="btn btn-outline-success"
+                           href="/Registro/Registrar?returnUrl=/CarritoCompra/ReservaUsuarioPago">Registrarse</a>
                     </div>
                 </div>
-            </div>
-
-            <!-- Pago -->
-            <h4 class="mb-3">Selecciona el método de pago</h4>
-            <div class="card mb-4">
-                <div class="card-body">
-                    <div class="form-check mb-3">
-                        <input class="form-check-input" type="radio" name="pago" id="mercadoPago" checked>
-                        <label class="form-check-label" for="mercadoPago">
-                            MercadoPago <img src="https://http2.mlstatic.com/frontend-assets/ui-navigation/6.7.3/mercadopago.svg" width="80" alt="MercadoPago">
-                        </label>
+            }
+            else
+            {
+                <h4 class="mb-3">Selecciona el método de pago</h4>
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <form asp-action="ConfirmarReserva" asp-controller="CarritoCompra" method="post">
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="radio" name="pago" id="mercadoPago" checked>
+                                <label class="form-check-label" for="mercadoPago">
+                                    MercadoPago <img src="https://http2.mlstatic.com/frontend-assets/ui-navigation/6.7.3/mercadopago.svg" width="80" alt="MercadoPago">
+                                </label>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100 mt-2">Realizar pago</button>
+                        </form>
                     </div>
-                    <!-- Aquí irá el widget/checkout de MercadoPago -->
-                   <a href="http://localhost:5195/CarritoCompra/ReservaConfirmacion"><button class="btn btn-primary w-100 mt-2">Realizar pago</button></a> 
                 </div>
-            </div>
+            }
         </div>
-        <!-- Resumen de reserva (reutiliza el diseño anterior) -->
+
+        <!-- Resumen de reserva -->
         <div class="col-md-4">
             <div class="card">
                 <div class="card-header text-center bg-light">
                     <strong>Resumen de reserva</strong>
                 </div>
                 <div class="card-body">
-                    <!-- Repite el mismo resumen de la página anterior -->
-                    <p class="text-muted mb-2">Fecha de reserva: <span>05/06/2025</span></p>
-                    <img src="https://ejemplo.com/imagen-tours.jpg" class="img-fluid mb-2 rounded" alt="Destino">
-                    <h5 class="mb-1">Huacachina</h5>
-                    <p class="mb-1"><span class="badge bg-info">Tour 8 días</span></p>
-                    <p class="mb-1"><strong>Fecha elegida:</strong> 12/07/2025</p>
+                    <p class="text-muted mb-2">Fecha de reserva: <span>@DateTime.Now.ToString("dd/MM/yyyy")</span></p>
+                    <img src="@Model.DestinoImagenUrl" class="img-fluid mb-2 rounded" alt="Destino">
+                    <h5 class="mb-1">@Model.DestinoNombre</h5>
+                    <p class="mb-1"><span class="badge bg-info">@Model.DestinoDuracion</span></p>
+                    <p class="mb-1"><strong>Fecha elegida:</strong> @Model.FechaElegida</p>
                     <div class="mb-2">
                         <strong>Pasajeros:</strong>
                         <ul class="mb-0">
-                            <li>Adultos: 2 x S/ 300 = <strong>S/ 600</strong></li>
-                            <li>Niños: 1 x S/ 300 = <strong>S/ 300</strong></li>
+                            <li>Adultos: @totalAdultos x S/ @precio = <strong>S/ @totalAdultosMonto</strong></li>
+                            <li>Niños: @totalNinos x S/ @precio = <strong>S/ @totalNinosMonto</strong></li>
                         </ul>
                     </div>
                     <div class="mb-2">
                         <strong>Servicios adicionales:</strong>
                         <ul class="mb-0">
-                            <li>Recojo del hospedaje</li>
-                            <li>Desayuno incluido</li>
+                            @if (Model.ServiciosAdicionales != null && Model.ServiciosAdicionales.Any())
+                            {
+                                foreach (var servicio in Model.ServiciosAdicionales)
+                                {
+                                    <li>@servicio</li>
+                                }
+                            }
+                            else
+                            {
+                                <li>No seleccionados</li>
+                            }
                         </ul>
                     </div>
                     <hr>
                     <div class="d-flex justify-content-between">
                         <span><strong>Total</strong></span>
-                        <span class="fs-5 fw-bold">S/ 900</span>
+                        <span class="fs-5 fw-bold">S/ @total</span>
                     </div>
                 </div>
             </div>

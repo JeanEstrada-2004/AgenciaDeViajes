@@ -16,6 +16,24 @@
         <div class="col-md-8">
             <h3 class="mb-4">Datos de los pasajeros</h3>
             <form asp-action="ReservaUsuarioPago" asp-controller="CarritoCompra" method="post">
+                <!-- CAMPOS OCULTOS PARA NO PERDER INFO DEL MODELO -->
+                <input type="hidden" name="DestinoId" value="@Model.DestinoId" />
+                <input type="hidden" name="DestinoNombre" value="@Model.DestinoNombre" />
+                <input type="hidden" name="DestinoImagenUrl" value="@Model.DestinoImagenUrl" />
+                <input type="hidden" name="DestinoDuracion" value="@Model.DestinoDuracion" />
+                <input type="hidden" name="PrecioTour" value="@Model.PrecioTour" />
+                <input type="hidden" name="FechaElegida" value="@Model.FechaElegida" />
+                <input type="hidden" name="CantidadAdultos" value="@Model.CantidadAdultos" />
+                <input type="hidden" name="CantidadNinos" value="@Model.CantidadNinos" />
+
+                @if (Model.ServiciosAdicionales != null)
+                {
+                    for (int s = 0; s < Model.ServiciosAdicionales.Count; s++)
+                    {
+                        <input type="hidden" name="ServiciosAdicionales[@s]" value="@Model.ServiciosAdicionales[s]" />
+                    }
+                }
+
                 @for (int i = 1; i <= totalAdultos; i++)
                 {
                     <div class="card mb-3">

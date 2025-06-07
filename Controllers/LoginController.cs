@@ -19,15 +19,16 @@ namespace AgenciaDeViajes.Controllers
 
         // GET: /Login
         [HttpGet("")]
-        public IActionResult Index()
+        public IActionResult Index(string? returnUrl = null)
         {
+            ViewBag.ReturnUrl = returnUrl; // Para que la vista lo tome y lo pase en el formulario
             return View();
         }
 
         // POST: /Login/Iniciar
         [HttpPost("Iniciar")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Iniciar(string nombreUsuario, string contrasena)
+        public async Task<IActionResult> Iniciar(string nombreUsuario, string contrasena, string? returnUrl)
         {
             var usuario = _context.Usuarios
                 .FirstOrDefault(u => u.NombreUsuario == nombreUsuario && u.Contrasena == contrasena);
@@ -45,10 +46,15 @@ namespace AgenciaDeViajes.Controllers
 
                 await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
 
+                // REDIRECCIÓN CORRECTA SI HAY returnUrl
+                if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+                    return Redirect(returnUrl);
+
                 return RedirectToAction("Index", "Home");
             }
 
             ViewBag.Error = "Usuario o contraseña incorrecta";
+            ViewBag.ReturnUrl = returnUrl; // Para que lo retenga al recargar con error
             return View("Index");
         }
 
@@ -74,9 +80,7 @@ namespace AgenciaDeViajes.Controllers
             if (email == null)
                 return RedirectToAction("Index");
 
-            // Extraer el nombre de usuario desde el email (antes del @)
             var nombreUsuario = email.Split('@')[0];
-
             var usuario = _context.Usuarios.FirstOrDefault(u => u.NombreUsuario == nombreUsuario);
             if (usuario == null)
             {
@@ -98,9 +102,9 @@ namespace AgenciaDeViajes.Controllers
 
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(identity));
 
+            // Puedes leer el returnUrl aquí si lo deseas y pasarlo como query string a GoogleLogin (más avanzado)
             return RedirectToAction("Index", "Home");
         }
-
 
         [HttpPost("Logout")]
         [ValidateAntiForgeryToken]
