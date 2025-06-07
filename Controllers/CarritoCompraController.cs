@@ -2,6 +2,9 @@ using Microsoft.AspNetCore.Mvc;
 using AgenciaDeViajes.Models;
 using AgenciaDeViajes.Data;
 using System.Text.Json;
+using System.Text;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Security.Claims;
 
 namespace AgenciaDeViajes.Controllers
@@ -43,7 +46,6 @@ namespace AgenciaDeViajes.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult ReservaUsuarioPago(ReservaCarritoViewModel model)
         {
-            // Actualiza la reserva en la sesión con los pasajeros agregados
             HttpContext.Session.SetString("CarritoReserva", JsonSerializer.Serialize(model));
             return RedirectToAction("ReservaUsuarioPago");
         }
@@ -61,19 +63,71 @@ namespace AgenciaDeViajes.Controllers
             return View(model);
         }
 
-        // POST: Confirmar y guardar la reserva en la base de datos
+        // === INTEGRACIÓN MERCADOPAGO REST API ===
+        [HttpPost]
+        public async Task<IActionResult> CrearPreferencia()
+        {
+            var json = HttpContext.Session.GetString("CarritoReserva");
+            ReservaCarritoViewModel? model = null;
+            if (!string.IsNullOrEmpty(json))
+                model = JsonSerializer.Deserialize<ReservaCarritoViewModel>(json);
+
+            if (model == null)
+                return BadRequest("No hay datos de reserva.");
+
+            // Construir el objeto preferencia
+            var preference = new MercadoPagoPreferenceRequest
+            {
+                items = new List<MercadoPagoPreferenceRequest.Item>
+                {
+                    new MercadoPagoPreferenceRequest.Item
+                    {
+                        title = model.DestinoNombre,
+                        quantity = model.CantidadAdultos + model.CantidadNinos,
+                        currency_id = "PEN",
+                        unit_price = (decimal)model.PrecioTour
+                    }
+                },
+                back_urls = new MercadoPagoPreferenceRequest.BackUrls
+                {
+                    success = Url.Action("ReservaConfirmacion", "CarritoCompra", null, Request.Scheme),
+                    failure = Url.Action("ReservaUsuarioPago", "CarritoCompra", null, Request.Scheme),
+                    pending = Url.Action("ReservaUsuarioPago", "CarritoCompra", null, Request.Scheme)
+                },
+                auto_return = "approved"
+            };
+
+            // Llama a la API REST de MercadoPago
+            var httpClient = new HttpClient();
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "TEST-5586223908775088-060620-aeed839ab88bce6ce58189a811185b43-2479968511");
+            var content = new StringContent(JsonSerializer.Serialize(preference), Encoding.UTF8, "application/json");
+            var response = await httpClient.PostAsync("https://api.mercadopago.com/checkout/preferences", content);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                return BadRequest("Error al crear preferencia MercadoPago: " + error);
+            }
+
+            var respuesta = await response.Content.ReadAsStringAsync();
+            using var doc = JsonDocument.Parse(respuesta);
+            var initPoint = doc.RootElement.GetProperty("init_point").GetString();
+
+            // Devuelve el URL de pago (init_point) al frontend
+            return Json(new { init_point = initPoint });
+        }
+        // === FINAL INTEGRACIÓN MERCADO PAGO ===
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult ConfirmarReserva()
         {
-            // 1. Asegúrate que el usuario esté autenticado
             if (!User.Identity.IsAuthenticated)
             {
                 TempData["Error"] = "Debe iniciar sesión para reservar.";
                 return RedirectToAction("ReservaUsuarioPago");
             }
 
-            // 2. Recuperar el modelo de la sesión
             var json = HttpContext.Session.GetString("CarritoReserva");
             ReservaCarritoViewModel? model = null;
             if (!string.IsNullOrEmpty(json))
@@ -81,7 +135,6 @@ namespace AgenciaDeViajes.Controllers
             if (model == null)
                 return RedirectToAction("Index", "Home");
 
-            // 3. Obtener el usuario actual
             var nombreUsuario = User.Identity.Name;
             var usuario = _context.Usuarios.FirstOrDefault(u => u.NombreUsuario == nombreUsuario);
             if (usuario == null)
@@ -90,7 +143,6 @@ namespace AgenciaDeViajes.Controllers
                 return RedirectToAction("ReservaUsuarioPago");
             }
 
-            // 4. Guardar la reserva principal
             var reserva = new Reserva
             {
                 IdUsuario = usuario.IdUsuario,
@@ -101,14 +153,13 @@ namespace AgenciaDeViajes.Controllers
                 CantidadNinos = model.CantidadNinos,
                 PrecioTotal = (decimal)(model.PrecioTour * (model.CantidadAdultos + model.CantidadNinos)),
                 Estado = "Pendiente",
-                MetodoPago = "MercadoPago", // ejemplo
+                MetodoPago = "MercadoPago",
                 FechaPago = DateTime.Now
             };
 
             _context.Reservas.Add(reserva);
             _context.SaveChanges();
 
-            // 5. Guardar pasajeros
             if (model.Pasajeros != null)
             {
                 foreach (var pasajero in model.Pasajeros)
@@ -126,7 +177,6 @@ namespace AgenciaDeViajes.Controllers
                 }
             }
 
-            // 6. Guardar servicios adicionales
             if (model.ServiciosAdicionales != null)
             {
                 foreach (var serv in model.ServiciosAdicionales)
@@ -142,14 +192,11 @@ namespace AgenciaDeViajes.Controllers
 
             _context.SaveChanges();
 
-            // Limpia la sesión del carrito
             HttpContext.Session.Remove("CarritoReserva");
 
-            // Redirigir a la página de confirmación y pasar el ID de reserva
             return RedirectToAction("ReservaConfirmacion", new { id = reserva.IdReserva });
         }
 
-        // GET: Confirmación de reserva
         public IActionResult ReservaConfirmacion(int id)
         {
             var reserva = _context.Reservas
