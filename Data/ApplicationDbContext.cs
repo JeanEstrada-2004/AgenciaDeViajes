@@ -10,8 +10,8 @@ namespace AgenciaDeViajes.Data
         {
         }
 
-        
-        
+
+
         public DbSet<Region> Regiones { get; set; }
         public DbSet<Destino> Destinos { get; set; }
         public DbSet<Usuario> Usuarios { get; set; }
@@ -31,5 +31,7 @@ namespace AgenciaDeViajes.Data
 
             // Agrega aquí más relaciones si es necesario
         }
+        
+        public DbSet<ReservaTour> ReservasTours { get; set; }
     }
 }
