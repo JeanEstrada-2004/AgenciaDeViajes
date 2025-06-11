@@ -1,8 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using AgenciaDeViajes.Data;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using AgenciaDeViajes.Services; // <-- Asegúrate de agregar esto
-using Microsoft.AspNetCore.Authentication.Google;
+using AgenciaDeViajes.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,28 +14,30 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(connectionString));
 
-// Autenticación: Cookies + Google
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
-})
-.AddCookie(options =>
-{
-    options.LoginPath = "/Login/Index";
-})
-.AddGoogle(options =>
-{
-    options.ClientId = builder.Configuration["Authentication:Google:ClientId"];
-    options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
-    options.CallbackPath = "/signin-google";
-});
+// === AUTENTICACIÓN BÁSICA CON COOKIES ===
+// Si no usas login por ahora, puedes comentar toda esta sección
 
-builder.Services.AddAuthorization();
+// builder.Services.AddAuthentication(options =>
+// {
+//     options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+//     options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
+// })
+// .AddCookie(options =>
+// {
+//     options.LoginPath = "/Login/Index";
+// })
+// .AddGoogle(options =>
+// {
+//     // Comentado hasta tener ClientId y ClientSecret configurados
+//     options.ClientId = builder.Configuration["Authentication:Google:ClientId"];
+//     options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+//     options.CallbackPath = "/signin-google";
+// });
+
+// builder.Services.AddAuthorization();
 
 // === REGISTRO DEL SERVICIO DE CLIMA ===
-builder.Services.AddHttpClient<WeatherService>(); // <-- Este es el registro PRO
-
+builder.Services.AddHttpClient<WeatherService>();
 
 builder.Services.AddSingleton<TourPopularityService>();
 
@@ -47,6 +48,8 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     db.Database.Migrate(); // Esto crea/modifica tablas en Render
+
+    
 }
 
 // Configuración del pipeline HTTP
@@ -64,8 +67,10 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
-app.UseAuthentication();
-app.UseAuthorization();
+
+// Comentado si no se usa autenticación aún
+// app.UseAuthentication();
+// app.UseAuthorization();
 
 // === RUTA EXPLÍCITA PARA DESTINATION ===
 app.MapControllerRoute(
