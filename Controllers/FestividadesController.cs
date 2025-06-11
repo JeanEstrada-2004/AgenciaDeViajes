@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using AgenciaDeViajes.Data;
-using AgenciaDeViajes.Models;
 
 namespace AgenciaDeViajes.Controllers
 {
@@ -14,17 +13,10 @@ namespace AgenciaDeViajes.Controllers
             _context = context;
         }
 
-        // GET: Festividades
         public async Task<IActionResult> Index()
         {
-            var festividades = await _context.Festividades
-                .Include(f => f.Eventos)
-                    .ThenInclude(e => e.Actividades)
-                .ToListAsync();
-
+            var festividades = await _context.Festividades.ToListAsync();
             return View(festividades);
         }
-
-        // Puedes agregar acciones Create, Edit, Details, Delete si lo necesitas
     }
 }
