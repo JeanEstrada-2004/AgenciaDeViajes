@@ -4,22 +4,112 @@
     ViewData["Title"] = "Detalle de Entrada del Blog";
 }
 
-<div class="container mt-5">
-    <h1 class="mb-3">@Model.Titulo</h1>
+<link rel="stylesheet" href="~/css/blog.css" />
 
-    <p class="text-muted">
-        <strong>@Model.Ciudad</strong> - @Model.FechaPublicacion.ToString("dd/MM/yyyy")
-    </p>
-
-    <img src="@Model.FotoUrl" alt="Imagen de @Model.Titulo" class="img-fluid mb-4" />
-
-    <div>
-        <!-- Mostrar descripción -->
-        <p>@Html.Raw(Model.Descripcion.Replace("\n", "<br />"))</p>
-
-        <!-- Mostrar contenido adicional, si quieres -->
-        <p>@Html.Raw(Model.Contenido.Replace("\n", "<br />"))</p>
+<!-- Hero Section -->
+<div class="blog-detail-hero">
+    <img src="@Model.FotoUrl" class="blog-detail-hero-img" alt="Imagen de @Model.Titulo" onerror="this.src='https://via.placeholder.com/1920x1080?text=Imagen+no+disponible'" />
+    <div class="blog-detail-hero-content">
+        <h1 class="blog-detail-hero-title">@Model.Titulo</h1>
+        <div class="d-flex justify-content-center gap-4 flex-wrap">
+            <div class="blog-detail-meta-item">
+                <i class="fas fa-map-marker-alt"></i> @Model.Ciudad
+            </div>
+            <div class="blog-detail-meta-item">
+                <i class="far fa-calendar-alt"></i> @Model.FechaPublicacion.ToString("dd MMMM yyyy")
+            </div>
+        </div>
     </div>
-
-    <a asp-action="Index" class="btn btn-primary mt-4">Volver al Blog</a>
 </div>
+
+<!-- Contenido Principal -->
+<div class="blog-container">
+    <div class="blog-detail-container">
+        <div class="blog-detail-header">
+            <h2 class="blog-detail-title">@Model.Titulo</h2>
+            <div class="blog-detail-meta">
+                <div class="blog-detail-meta-item">
+                    <i class="fas fa-map-marker-alt"></i> @Model.Ciudad
+                </div>
+                <div class="blog-detail-meta-item">
+                    <i class="far fa-clock"></i> Tiempo de lectura: @(Model.Contenido.Length / 1000 + 1) min
+                </div>
+                <div class="blog-detail-meta-item">
+                    <i class="far fa-calendar-alt"></i> @Model.FechaPublicacion.ToString("dd MMMM yyyy")
+                </div>
+            </div>
+        </div>
+
+        <div class="blog-detail-img-container">
+            <img src="@Model.FotoUrl" alt="Imagen de @Model.Titulo" class="blog-detail-img" onerror="this.src='https://via.placeholder.com/1200x600?text=Imagen+no+disponible'" />
+        </div>
+
+        <div class="blog-detail-content">
+            @Html.Raw(Model.Descripcion.Replace("\n", "<br /><br />"))
+            
+            <div class="my-5 py-3 border-top border-bottom">
+                <blockquote class="blockquote text-center">
+                    <p class="mb-0 font-italic">"@Model.Ciudad es un destino que te dejará sin palabras"</p>
+                    <footer class="blockquote-footer mt-2">Equipo de <cite>Agencia de Viajes</cite></footer>
+                </blockquote>
+            </div>
+            
+            @Html.Raw(Model.Contenido.Replace("\n", "<br /><br />"))
+        </div>
+
+        <div class="blog-detail-actions">
+            <a asp-action="Index" class="btn btn-blog btn-blog-secondary">
+                <i class="fas fa-arrow-left"></i> Volver al Blog
+            </a>
+            
+            @if (User.IsInRole("Admin"))
+            {
+                <div class="d-flex gap-2">
+                    <a asp-action="Create" asp-route-id="@Model.Id" class="btn btn-blog btn-blog-warning">
+                        <i class="far fa-edit"></i> Editar Entrada
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Sección de entradas relacionadas -->
+<div class="blog-container my-5">
+    <h3 class="text-center mb-4">Más entradas que te pueden interesar</h3>
+    <div class="row">
+        <!-- Aquí podrías incluir un partial view con entradas relacionadas -->
+        <div class="col-12 text-center">
+            <a asp-action="Index" class="btn btn-blog btn-blog-primary">
+                Ver todas las entradas del blog
+            </a>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/blog.js"></script>
+    
+    <script>
+        // Efecto parallax para la imagen hero
+        document.addEventListener('DOMContentLoaded', function() {
+            const hero = document.querySelector('.blog-detail-hero');
+            if (hero) {
+                window.addEventListener('scroll', function() {
+                    const scrollPosition = window.pageYOffset;
+                    hero.style.backgroundPositionY = scrollPosition * 0.5 + 'px';
+                });
+            }
+            
+            // Smooth scroll para anclas
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    document.querySelector(this.getAttribute('href')).scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                });
+            });
+        });
+    </script>
+}

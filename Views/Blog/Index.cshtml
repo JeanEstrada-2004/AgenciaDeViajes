@@ -2,67 +2,78 @@
 
 @{
     ViewData["Title"] = "Blog de Viajes";
-
+    
     @if (User.IsInRole("Admin"))
     {
-    ViewBag.HideHeaderFooter = true;
+        ViewBag.HideHeaderFooter = true;
     }
 }
 
-<div class="container mt-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h1 class="display-4">Blog de la Agencia de Viajes</h1>
-            <p class="lead mb-0">Explora artículos, consejos, destinos y experiencias únicas.</p>
+<link rel="stylesheet" href="~/css/blog.css" />
+
+<div class="blog-header text-center">
+    <div class="blog-container">
+        <div class="d-flex justify-content-between align-items-center flex-wrap">
+            <div class="text-start">
+                <h1 class="blog-title display-4">Blog de la Agencia de Viajes</h1>
+                <p class="blog-subtitle lead">Explora artículos, consejos, destinos y experiencias únicas.</p>
+            </div>
+            @if (User.IsInRole("Admin"))
+            {
+                <div class="d-flex gap-3 mt-3 mt-md-0">
+                    <a asp-action="Create" class="btn btn-blog btn-blog-primary">
+                        <i class="fas fa-plus"></i> Nueva Entrada
+                    </a>
+                    <a href="@Url.Action("Panel", "Admin")" class="btn btn-admin-panel">
+                        <i class="fas fa-cog"></i> Panel Principal
+                    </a>
+                </div>
+            }
         </div>
-        @if (User.IsInRole("Admin"))
-        {
-        <div>
-                <a asp-action="Create" class="btn btn-success">+ Nueva Entrada</a>
-        </div>
-        <div class="admin-actions">
-            <a href="@Url.Action("Panel", "Admin")" class="btn btn-info btn-admin-panel">
-                <i class="fas fa-cog"></i> Panel Principal
-            </a>
-        </div>
-        }
     </div>
+</div>
 
-    <hr />
-
+<div class="blog-container">
     <div class="row">
         @foreach (var entrada in Model)
         {
-            <div class="col-md-6 mb-4">
-                <div class="card shadow-sm h-100">
-                    <img src="@entrada.FotoUrl" class="card-img-top" alt="Imagen de @entrada.Titulo" />
-                    <div class="card-body">
-                        <h5 class="card-title">@entrada.Titulo</h5>
-                        <p class="card-text">
-                            <strong>@entrada.Ciudad</strong> - @entrada.FechaPublicacion.ToString("dd/MM/yyyy")
+            <div class="col-lg-6 mb-4">
+                <div class="blog-card">
+                    <img src="@entrada.FotoUrl" class="blog-card-img" alt="Imagen de @entrada.Titulo" onerror="this.src='https://via.placeholder.com/800x500?text=Imagen+no+disponible'" />
+                    <div class="blog-card-body">
+                        <h3 class="blog-card-title">@entrada.Titulo</h3>
+                        <p class="blog-card-meta">
+                            <i class="fas fa-map-marker-alt"></i> <strong>@entrada.Ciudad</strong> - 
+                            <i class="far fa-calendar-alt"></i> @entrada.FechaPublicacion.ToString("dd MMM yyyy")
                         </p>
-                        <p class="card-text">@Html.Raw(entrada.Descripcion.Replace("\n", "<br />"))</p>
-
-                        @if (User.IsInRole("Admin"))
-                        {
-                        <div class="d-flex gap-2 mt-3">
-                            <a asp-action="Details" asp-route-id="@entrada.Id" class="btn btn-info">Ver Detalle Completo</a>
-                            <a asp-action="Create" asp-route-id="@entrada.Id" class="btn btn-warning">Editar</a>
-
-                            <form asp-action="DeleteConfirmed" asp-route-id="@entrada.Id" method="post" 
-                                  onsubmit="return confirm('¿Seguro que quieres eliminar esta entrada?');">
-                                <button type="submit" class="btn btn-danger">Eliminar</button>
-                            </form>
+                        <div class="blog-card-text">
+                            @Html.Raw(entrada.Descripcion.Replace("\n", "<br />"))
                         </div>
-                        }else
-                        {
-                            <div class="mt-3">
-                                <a asp-action="Details" asp-route-id="@entrada.Id" class="btn btn-info">Ver Detalle Completo</a>
-                            </div>
-                        }
+                        <div class="blog-card-actions d-flex gap-2">
+                            <a asp-action="Details" asp-route-id="@entrada.Id" class="btn btn-blog btn-blog-primary">
+                                <i class="far fa-eye"></i> Ver Detalle
+                            </a>
+                            
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <a asp-action="Create" asp-route-id="@entrada.Id" class="btn btn-blog btn-blog-warning">
+                                    <i class="far fa-edit"></i> Editar
+                                </a>
+                                
+                                <form asp-action="DeleteConfirmed" asp-route-id="@entrada.Id" method="post">
+                                    <button type="submit" class="btn btn-blog btn-blog-danger">
+                                        <i class="far fa-trash-alt"></i> Eliminar
+                                    </button>
+                                </form>
+                            }
+                        </div>
                     </div>
                 </div>
             </div>
         }
     </div>
 </div>
+
+@section Scripts {
+    <script src="~/js/blog.js"></script>
+}
