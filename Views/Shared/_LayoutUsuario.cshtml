@@ -50,7 +50,6 @@
             background: #f7fafd;
             min-height: 100vh;
         }
-        /* LA MEDIA QUERY NO DEBE DAR ERROR */
         @@media (max-width: 991.98px) {
             .sidebar { min-height: auto; }
         }
@@ -63,7 +62,11 @@
         <nav class="col-lg-2 col-md-3 sidebar py-0">
             <div class="user-header">
                 <img src="https://i.pravatar.cc/150?img=65" alt="User" />
-                <h6>¡Bienvenido,<br/>Juan Pérez!</h6>
+                <h6>
+                    ¡Bienvenido,<br/>
+                    @((ViewBag.NombreCompleto as string) ?? "Usuario")
+                    !
+                </h6>
             </div>
             <ul class="nav flex-column px-3">
                 <li class="nav-item">

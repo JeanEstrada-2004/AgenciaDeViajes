@@ -2,29 +2,26 @@
     ViewBag.Title = "Reserva confirmada";
     Layout = "_Layout";
 }
+
 <div class="container py-5">
     <div class="row justify-content-center">
         <div class="col-md-8 text-center">
             <div class="alert alert-success py-5">
                 <i class="fas fa-check-circle fa-3x mb-4"></i>
                 <h2>¡Reserva confirmada!</h2>
-                <p class="lead mb-3">Tu compra ha sido registrada con éxito.<br>
-                    En breve recibirás un correo con los detalles.</p>
+                <p class="lead mb-3">
+                    Tu compra ha sido registrada con éxito.<br>
+                    En breve recibirás un correo con los detalles.<br>
+                    <span class="badge bg-info">Pago realizado con MercadoPago</span>
+                </p>
                 <hr>
-                <h4 class="mt-4 mb-3">Resumen de tu compra</h4>
-                <div class="card mx-auto" style="max-width: 500px;">
-                    <div class="card-body">
-                        <img src="https://ejemplo.com/imagen-tours.jpg" class="img-fluid mb-2 rounded" alt="Destino">
-                        <h5>Huacachina - Tour 8 días</h5>
-                        <ul class="list-group mb-3 text-start">
-                            <li class="list-group-item">Fecha del tour: <strong>12/07/2025</strong></li>
-                            <li class="list-group-item">Adultos: 2</li>
-                            <li class="list-group-item">Niños: 1</li>
-                            <li class="list-group-item">Servicios adicionales: Recojo del hospedaje, Desayuno incluido</li>
-                            <li class="list-group-item">Total pagado: <strong>S/ 900</strong></li>
-                        </ul>
-                    </div>
-                </div>
+                <h4 class="mt-4 mb-3">Resumen de tu pago</h4>
+                <ul class="list-group mb-3 text-start">
+                    <li class="list-group-item">ID de pago MercadoPago: <strong>@ViewBag.CollectionId</strong></li>
+                    <li class="list-group-item">Estado del pago: <strong>@ViewBag.Status</strong></li>
+                    <li class="list-group-item">ID de transacción: <strong>@ViewBag.PaymentId</strong></li>
+                    <li class="list-group-item">ID de preferencia: <strong>@ViewBag.PreferenceId</strong></li>
+                </ul>
                 <a href="/" class="btn btn-primary mt-4 px-4">Volver al inicio</a>
             </div>
         </div>

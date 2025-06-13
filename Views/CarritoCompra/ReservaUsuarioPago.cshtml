@@ -1,5 +1,5 @@
 @model AgenciaDeViajes.Models.ReservaCarritoViewModel
-@using Microsoft.AspNetCore.Antiforgery
+
 @{
     ViewBag.Title = "Reservar destino - Usuario y Pago";
     Layout = "_Layout";
@@ -32,13 +32,9 @@
             {
                 <h4 class="mb-3">Selecciona el método de pago</h4>
                 <div class="card mb-4">
-                    <div class="card-body">
-                        <!-- Formulario solo para el token antiforgery -->
-                        <form id="mercadoPagoForm">
-                            @Html.AntiForgeryToken()
-                        </form>
-                        <button type="button" id="btnMercadoPago" class="btn btn-primary w-100 mt-2">
-                            Realizar pago con MercadoPago
+                    <div class="card-body text-center">
+                        <button id="checkout-btn" class="btn btn-primary w-100 mt-2" style="height: 50px; font-size: 1.2rem;">
+                            Pagar con MercadoPago
                         </button>
                         <div id="mp-loader" style="display:none;">
                             <span>Cargando MercadoPago...</span>
@@ -95,35 +91,45 @@
 </div>
 
 @section Scripts {
+<script src="https://sdk.mercadopago.com/js/v2"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        var btnPago = document.getElementById('btnMercadoPago');
-        var loader = document.getElementById('mp-loader');
-        var tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
+        const mp = new MercadoPago('TEST-e9dc5324-13b3-4442-94f9-504e419835a4', { locale: 'es-PE' });
 
-        if (btnPago) {
-            btnPago.addEventListener('click', function () {
-                btnPago.disabled = true;
+        const checkoutBtn = document.getElementById('checkout-btn');
+        const loader = document.getElementById('mp-loader');
+
+        if (checkoutBtn) {
+            checkoutBtn.addEventListener('click', function () {
                 loader.style.display = 'block';
+                checkoutBtn.disabled = true;
 
-                fetch('/CarritoCompra/CrearPreferencia', {
+                fetch('/CarritoCompra/CrearPreferenciaPRO', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
-                        'RequestVerificationToken': tokenInput ? tokenInput.value : ''
+                        'Content-Type': 'application/json'
                     }
                 })
                 .then(response => response.json())
                 .then(data => {
-                    if (data.init_point) {
-                        window.location.href = data.init_point;
+                    loader.style.display = 'none';
+                    checkoutBtn.disabled = false;
+                    if (data && data.preferenceId) {
+                        mp.checkout({
+                            preference: { id: data.preferenceId },
+                            autoOpen: true
+                        });
                     } else {
-                        alert('No se pudo generar el pago. Intente nuevamente.');
+                        alert('No se pudo iniciar el pago: ' + (data.message || 'Error desconocido'));
                     }
+                })
+                .catch(error => {
+                    loader.style.display = 'none';
+                    checkoutBtn.disabled = false;
+                    alert('Error de conexión: ' + error);
                 });
             });
         }
     });
 </script>
 }
-

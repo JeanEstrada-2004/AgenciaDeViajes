@@ -2,11 +2,13 @@
     ViewBag.Title = "Dashboard";
     Layout = "~/Views/Shared/_LayoutUsuario.cshtml";
     ViewBag.Active = "Dashboard";
+    var reserva = ViewBag.ProximaReserva as AgenciaDeViajes.Models.Reserva;
 }
+
 <div class="container-fluid">
     <div class="row mb-4">
         <div class="col">
-            <h2 class="fw-bold mb-3"><i class="bi bi-house-door"></i> Dashboard</h2>
+            <h2 class="fw-bold mb-3"><i class="bi bi-house-door"></i> Dashboard PRP</h2>
             <p class="text-muted">¡Bienvenido a tu panel! Aquí tienes un resumen de tus próximas reservas y notificaciones.</p>
         </div>
     </div>
@@ -18,8 +20,23 @@
                         <i class="bi bi-calendar3 fs-1 text-primary me-3"></i>
                         <div>
                             <h6 class="mb-1">Próxima reserva</h6>
-                            <span class="fw-bold text-success">Machu Picchu - 10/07/2024</span>
-                            <div class="text-muted small">2 adultos, 1 niño</div>
+                            @if (reserva != null)
+                            {
+                                <span class="fw-bold text-success">
+                                    @(reserva.Destino?.nom_destino ?? "Destino desconocido") - @reserva.FechaTour.ToString("dd/MM/yyyy")
+                                </span>
+                                <div class="text-muted small">
+                                    @reserva.CantidadAdultos adulto(s)
+                                    @if (reserva.CantidadNinos > 0)
+                                    {
+                                        <text>, @reserva.CantidadNinos niño(s)</text>
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                <span class="fw-bold text-muted">No tienes reservas próximas</span>
+                            }
                         </div>
                     </div>
                 </div>
@@ -32,7 +49,7 @@
                         <i class="bi bi-wallet2 fs-1 text-warning me-3"></i>
                         <div>
                             <h6 class="mb-1">Pagos pendientes</h6>
-                            <span class="fw-bold text-danger">Ninguno</span>
+                            <span class="fw-bold text-danger">@ViewBag.PagosPendientes</span>
                         </div>
                     </div>
                 </div>
@@ -45,8 +62,8 @@
                         <i class="bi bi-bell fs-1 text-info me-3"></i>
                         <div>
                             <h6 class="mb-1">Notificaciones</h6>
-                            <span class="fw-bold">1 nuevo mensaje</span>
-                            <div class="text-muted small">¡Tu reserva fue confirmada!</div>
+                            <span class="fw-bold">@ViewBag.Notificaciones nuevo(s) mensaje(s)</span>
+                            <div class="text-muted small">@ViewBag.UltimaNotificacion</div>
                         </div>
                     </div>
                 </div>

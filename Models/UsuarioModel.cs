@@ -3,12 +3,12 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AgenciaDeViajes.Models
 {
+    [Table("Usuarios")]
     public class Usuario
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)] // 👈 Asegura que se autogenere
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int IdUsuario { get; set; }
-
 
         [Required]
         [StringLength(100)]
@@ -20,6 +20,10 @@ namespace AgenciaDeViajes.Models
 
         [Required]
         [StringLength(50)]
-        public string Rol { get; set; } = "Admin"; // Solo Admin por ahora
+        public string Rol { get; set; } = "Admin";
+
+        // NUEVO: para mostrar el nombre real del usuario
+        [StringLength(150)]
+        public string? NombreCompleto { get; set; }
     }
 }

@@ -5,7 +5,6 @@ using System.Text.Json;
 using System.Text;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Security.Claims;
 
 namespace AgenciaDeViajes.Controllers
 {
@@ -24,9 +23,8 @@ namespace AgenciaDeViajes.Controllers
             var json = HttpContext.Session.GetString("CarritoReserva");
             ReservaCarritoViewModel? model = null;
             if (!string.IsNullOrEmpty(json))
-            {
                 model = JsonSerializer.Deserialize<ReservaCarritoViewModel>(json);
-            }
+
             if (model == null)
                 return RedirectToAction("Index", "Home");
 
@@ -63,9 +61,9 @@ namespace AgenciaDeViajes.Controllers
             return View(model);
         }
 
-        // === INTEGRACIÓN MERCADOPAGO REST API ===
+        // === INTEGRACIÓN MERCADOPAGO CHECKOUT PRO ===
         [HttpPost]
-        public async Task<IActionResult> CrearPreferencia()
+        public async Task<IActionResult> CrearPreferenciaPRO()
         {
             var json = HttpContext.Session.GetString("CarritoReserva");
             ReservaCarritoViewModel? model = null;
@@ -73,48 +71,57 @@ namespace AgenciaDeViajes.Controllers
                 model = JsonSerializer.Deserialize<ReservaCarritoViewModel>(json);
 
             if (model == null)
-                return BadRequest("No hay datos de reserva.");
+                return Json(new { message = "No hay datos de reserva" });
 
-            // Construir el objeto preferencia
-            var preference = new MercadoPagoPreferenceRequest
+            // CAMBIA ESTA URL cada vez que ngrok te dé una nueva, SOLO httpS.
+            string publicBaseUrl = "https://3db0-190-239-89-127.ngrok-free.app"; // <-- ACTUALIZA aquí tu URL pública de ngrok (sin espacios al final)
+
+            string successUrl = $"{publicBaseUrl}/CarritoCompra/ReservaConfirmacion";
+            string failureUrl = $"{publicBaseUrl}/CarritoCompra/ReservaUsuarioPago";
+            string pendingUrl = $"{publicBaseUrl}/CarritoCompra/ReservaUsuarioPago";
+
+            var preferencia = new
             {
-                items = new List<MercadoPagoPreferenceRequest.Item>
-                {
-                    new MercadoPagoPreferenceRequest.Item
-                    {
+                items = new[] {
+                    new {
                         title = model.DestinoNombre,
                         quantity = model.CantidadAdultos + model.CantidadNinos,
                         currency_id = "PEN",
                         unit_price = (decimal)model.PrecioTour
                     }
                 },
-                back_urls = new MercadoPagoPreferenceRequest.BackUrls
-                {
-                    success = Url.Action("ReservaConfirmacion", "CarritoCompra", null, Request.Scheme),
-                    failure = Url.Action("ReservaUsuarioPago", "CarritoCompra", null, Request.Scheme),
-                    pending = Url.Action("ReservaUsuarioPago", "CarritoCompra", null, Request.Scheme)
+                back_urls = new {
+                    success = successUrl,
+                    failure = failureUrl,
+                    pending = pendingUrl
                 },
                 auto_return = "approved"
             };
 
-            // Llama a la API REST de MercadoPago
             var httpClient = new HttpClient();
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "TEST-5586223908775088-060620-aeed839ab88bce6ce58189a811185b43-2479968511");
-            var content = new StringContent(JsonSerializer.Serialize(preference), Encoding.UTF8, "application/json");
+            var content = new StringContent(JsonSerializer.Serialize(preferencia), Encoding.UTF8, "application/json");
             var response = await httpClient.PostAsync("https://api.mercadopago.com/checkout/preferences", content);
+
+            var respuesta = await response.Content.ReadAsStringAsync();
 
             if (!response.IsSuccessStatusCode)
             {
-                var error = await response.Content.ReadAsStringAsync();
-                return BadRequest("Error al crear preferencia MercadoPago: " + error);
+                string msg = respuesta;
+                try
+                {
+                    var doc = JsonDocument.Parse(respuesta);
+                    if (doc.RootElement.TryGetProperty("message", out var m))
+                        msg = m.GetString() ?? msg;
+                }
+                catch { }
+                return Json(new { message = "Error MercadoPago: " + msg });
             }
 
-            var respuesta = await response.Content.ReadAsStringAsync();
-            using var doc = JsonDocument.Parse(respuesta);
-            var initPoint = doc.RootElement.GetProperty("init_point").GetString();
+            using var docOk = JsonDocument.Parse(respuesta);
+            var preferenceId = docOk.RootElement.GetProperty("id").GetString();
 
-            // Devuelve el URL de pago (init_point) al frontend
-            return Json(new { init_point = initPoint });
+            return Json(new { preferenceId = preferenceId });
         }
         // === FINAL INTEGRACIÓN MERCADO PAGO ===
 
@@ -194,19 +201,33 @@ namespace AgenciaDeViajes.Controllers
 
             HttpContext.Session.Remove("CarritoReserva");
 
+            // Aquí pasamos el id para cuando el usuario viene del flujo interno (no MercadoPago)
             return RedirectToAction("ReservaConfirmacion", new { id = reserva.IdReserva });
         }
 
-        public IActionResult ReservaConfirmacion(int id)
+        // Ahora soporta ambos flujos: con parámetros de MercadoPago o con id local
+        [HttpGet]
+        public IActionResult ReservaConfirmacion(
+            int? id = null,
+            string collection_id = null,
+            string collection_status = null,
+            string payment_id = null,
+            string status = null,
+            string preference_id = null)
         {
-            var reserva = _context.Reservas
-                .Where(r => r.IdReserva == id)
-                .FirstOrDefault();
+            Reserva? reserva = null;
 
-            if (reserva == null)
-                return NotFound();
+            // Si venimos del flujo local, usamos el id
+            if (id.HasValue)
+                reserva = _context.Reservas.FirstOrDefault(r => r.IdReserva == id.Value);
 
-            return View(reserva);
+            // Si venimos desde MercadoPago y no hay id, puedes mostrar una confirmación genérica
+            ViewBag.CollectionId = collection_id;
+            ViewBag.Status = status;
+            ViewBag.PaymentId = payment_id;
+            ViewBag.PreferenceId = preference_id;
+
+            return View(reserva); // La view puede trabajar con reserva nula o no
         }
     }
 }
