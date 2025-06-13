@@ -48,7 +48,6 @@ namespace AgenciaDeViajes.Controllers
                     $"Popular: {prediccion.EsPopular} | " +
                     $"Probabilidad: {prediccion.Probability} | " +
                     $"Score: {prediccion.Score}");
-
                 }
             }
 
