@@ -6,5 +6,8 @@ namespace AgenciaDeViajes.Models.ViewModels
     {
         public List<Region> Regiones { get; set; }
         public List<Destino> DestinosPopulares { get; set; }
+        public int PaginaActual { get; set; }
+        public int TotalPaginas { get; set; }
+
     }
 }

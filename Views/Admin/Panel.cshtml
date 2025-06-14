@@ -126,12 +126,13 @@
                 <div class="card-content">
                     <i class="fas fa-cogs card-icon"></i>
                     <h3>Configuraciones</h3>
-                    <p>Ajustes del sistema</p>
-                    <a href="#" class="action-btn disabled">
-                        <i class="fas fa-clock"></i> Próximamente
+                    <p>Editar tus datos de administrador</p>
+                    <a href="@Url.Action("Configuracion", "Admin")" class="action-btn">
+                        <i class="fas fa-user-edit"></i> Editar Perfil
                     </a>
                 </div>
             </div>
+
             
             <div class="action-card quick-action">
                 <div class="card-content">
@@ -144,6 +145,18 @@
                     </div>
                 </div>
             </div>
+
+            <div class="action-card logout-action">
+                <div class="card-content">
+                    <i class="fas fa-sign-out-alt card-icon"></i>
+                    <h3>Cerrar Sesión</h3>
+                    <p>Salir de tu cuenta como administrador</p>
+                    <a href="@Url.Action("Logout", "Admin")" class="action-btn text-danger">
+                        <i class="fas fa-door-open"></i> Salir
+                    </a>
+                </div>
+            </div>
+
         </div>
     </div>
 </div>

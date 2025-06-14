@@ -239,7 +239,6 @@
     </footer>
     }
 
-
     <script src="@Url.Content("~/lib/jquery-validation/dist/jquery.validate.min.js")"></script>
     <script src="@Url.Content("~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js")"></script>
     <script src="@Url.Content("~/lib/jquery/dist/jquery.min.js")"></script>
@@ -249,5 +248,20 @@
     
     @await RenderSectionAsync("Scripts", required: false)
 </body>
-
+<script type="text/javascript">
+  (function(d, t) {
+      var v = d.createElement(t), s = d.getElementsByTagName(t)[0];
+      v.onload = function() {
+        window.voiceflow.chat.load({
+          verify: { projectID: '684100f80adf5081af5ed8ab' },
+          url: 'https://general-runtime.voiceflow.com',
+          versionID: 'production',
+          voice: {
+            url: "https://runtime-api.voiceflow.com"
+          }
+        });
+      }
+      v.src = "https://cdn.voiceflow.com/widget-next/bundle.mjs"; v.type = "text/javascript"; s.parentNode.insertBefore(v, s);
+  })(document, 'script');
+</script>
 </html>

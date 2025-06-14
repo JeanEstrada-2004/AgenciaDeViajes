@@ -20,34 +20,77 @@ namespace AgenciaDeViajes.Controllers
             _ia = ia;
         }
 
-        public IActionResult Destination()
+        public IActionResult Destination(string? nombre, string? precio, string? duracion, string? region, int page = 1, int pageSize = 6)
         {
-            // 1. Cargar regiones con destinos
             var regiones = _context.Regiones
                 .Include(r => r.Destinos)
                 .ToList();
 
-            // Convertimos cada Region en RegionView
-            var regionesView = regiones.Select(r => new RegionView
+            // Filtro avanzado
+            if (!string.IsNullOrEmpty(nombre))
             {
-                id_region = r.id_region,
-                num_tours = r.num_tours,
-                desc_region = r.desc_region,
-                ImgReg_url = r.ImgReg_url,
-                Destinos = r.Destinos.Select(d => new DestinoView
-                {
-                    id_destino = d.id_destino,
-                    id_region = d.id_region,
-                    nom_destino = d.nom_destino,
-                    desc_destino = d.desc_destino,
-                    precio_tour = d.precio_tour,
-                    num_entradas = d.num_entradas,
-                    time_tour = d.time_tour,
-                    ImgDest_url = d.ImgDest_url
-                }).ToList()
-            }).ToList();
+                regiones.ForEach(r => r.Destinos = r.Destinos
+                    .Where(d => d.nom_destino.Contains(nombre, StringComparison.OrdinalIgnoreCase)).ToList());
+            }
 
-            return View(regionesView);
+            if (!string.IsNullOrEmpty(precio) && decimal.TryParse(precio, out decimal pFiltrado))
+            {
+                regiones.ForEach(r => r.Destinos = r.Destinos
+                    .Where(d => d.precio_tour == pFiltrado).ToList());
+            }
+
+            if (!string.IsNullOrEmpty(duracion))
+            {
+                regiones.ForEach(r => r.Destinos = r.Destinos
+                    .Where(d => d.time_tour.Equals(duracion, StringComparison.OrdinalIgnoreCase)).ToList());
+            }
+
+            if (!string.IsNullOrEmpty(region))
+            {
+                regiones = regiones
+                    .Where(r => r.desc_region.Split('-')[0].Trim()
+                    .Contains(region, StringComparison.OrdinalIgnoreCase)).ToList();
+            }
+
+            // Predicción IA
+            var destinosPopulares = new List<Destino>();
+            foreach (var regionItem in regiones)
+            {
+                foreach (var destino in regionItem.Destinos)
+                {
+                    var prediccion = _ia.PredecirPopularidad(destino.id_destino, 2, (float)destino.precio_tour);
+                    if (prediccion.EsPopular)
+                    {
+                        destinosPopulares.Add(destino);
+                    }
+                }
+            }
+
+            // Paginación
+            var destinosTodos = regiones.SelectMany(r => r.Destinos).ToList();
+            int totalDestinos = destinosTodos.Count;
+            var destinosPaginados = destinosTodos
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            // Distribuir los destinos paginados a sus regiones (por consistencia)
+            foreach (var regionItem in regiones)
+            {
+                regionItem.Destinos = regionItem.Destinos
+                    .Where(d => destinosPaginados.Any(dp => dp.id_destino == d.id_destino))
+                    .ToList();
+            }
+
+            var viewModel = new RegionDestinoIAViewModel
+            {
+                Regiones = regiones,
+                DestinosPopulares = destinosPopulares.Take(4).ToList(),
+                PaginaActual = page,
+                TotalPaginas = (int)Math.Ceiling((double)totalDestinos / pageSize)
+            };
+
+            return View(viewModel);
         }
 
         // Mostrar detalles de un destino
