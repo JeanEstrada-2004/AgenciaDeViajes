@@ -1,0 +1,229 @@
+/* Estilos generales del blog */
+.blog-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 15px;
+}
+
+.blog-header {
+    background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+    color: white;
+    padding: 4rem 0;
+    margin-bottom: 3rem;
+    border-radius: 0 0 20px 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.blog-title {
+    font-weight: 800;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    margin-bottom: 0.5rem;
+}
+
+.blog-subtitle {
+    font-weight: 300;
+    opacity: 0.9;
+    margin-bottom: 0;
+}
+
+/* Tarjetas de entradas */
+.blog-card {
+    border: none;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    height: 100%;
+}
+
+.blog-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
+}
+
+.blog-card-img {
+    height: 250px;
+    object-fit: cover;
+    width: 100%;
+    border-bottom: 3px solid #b21f1f;
+}
+
+.blog-card-body {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    height: calc(100% - 250px);
+}
+
+.blog-card-title {
+    color: #1a2a6c;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+}
+
+.blog-card-meta {
+    color: #6c757d;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+.blog-card-text {
+    flex-grow: 1;
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+}
+
+.blog-card-actions {
+    margin-top: auto;
+}
+
+/* Página de detalle */
+.blog-detail-header {
+    margin-bottom: 2rem;
+}
+
+.blog-detail-title {
+    color: #1a2a6c;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+}
+
+.blog-detail-meta {
+    color: #6c757d;
+    font-size: 1rem;
+    margin-bottom: 2rem;
+}
+
+.blog-detail-img {
+    border-radius: 12px;
+    margin-bottom: 2rem;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+    max-height: 500px;
+    width: 100%;
+    object-fit: cover;
+}
+
+.blog-detail-content {
+    line-height: 1.8;
+    font-size: 1.1rem;
+}
+
+/* Formularios */
+.blog-form {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+    margin-bottom: 3rem;
+}
+
+.blog-form label {
+    font-weight: 600;
+    color: #1a2a6c;
+}
+
+.blog-form .form-control {
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 1.5rem;
+    border: 1px solid #ced4da;
+}
+
+.blog-form .form-control:focus {
+    border-color: #1a2a6c;
+    box-shadow: 0 0 0 0.25rem rgba(26, 42, 108, 0.25);
+}
+
+.blog-form textarea.form-control {
+    min-height: 200px;
+}
+
+/* Botones */
+.btn-blog {
+    padding: 0.5rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-blog-primary {
+    background-color: #1a2a6c;
+    color: white;
+    border: none;
+}
+
+.btn-blog-primary:hover {
+    background-color: #0f1a4d;
+    color: white;
+    transform: translateY(-2px);
+}
+
+.btn-blog-secondary {
+    background-color: #6c757d;
+    color: white;
+    border: none;
+}
+
+.btn-blog-secondary:hover {
+    background-color: #5a6268;
+    color: white;
+    transform: translateY(-2px);
+}
+
+.btn-blog-danger {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+}
+
+.btn-blog-danger:hover {
+    background-color: #bb2d3b;
+    color: white;
+    transform: translateY(-2px);
+}
+
+.btn-blog-warning {
+    background-color: #ffc107;
+    color: #212529;
+    border: none;
+}
+
+.btn-blog-warning:hover {
+    background-color: #e0a800;
+    color: #212529;
+    transform: translateY(-2px);
+}
+
+/* Admin styles */
+.admin-actions {
+    margin-top: 1rem;
+}
+
+.btn-admin-panel {
+    background-color: #343a40;
+    color: white;
+    border: none;
+    padding: 0.5rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+}
+
+.btn-admin-panel:hover {
+    background-color: #23272b;
+    color: white;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .blog-header {
+        padding: 2rem 0;
+    }
+    
+    .blog-title {
+        font-size: 2rem;
+    }
+    
+    .blog-card-img {
+        height: 200px;
+    }
+}

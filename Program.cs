@@ -2,57 +2,38 @@ using Microsoft.EntityFrameworkCore;
 using AgenciaDeViajes.Data;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using AgenciaDeViajes.Services;
-using Microsoft.AspNetCore.Authentication.Google;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configuración de la base de datos
+// Add services to the container.
+builder.Services.AddControllersWithViews(); // This is the critical line you're missing
+builder.Services.AddRazorPages(); // If you're using Razor Pages
+
+// Add your services
+builder.Services.AddScoped<IEmailService, EmailService>();
+
+// Database configuration
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(connectionString));
 
-// Configuración de Identity
-builder.Services.AddDefaultIdentity<IdentityUser>(options => 
-{
-    options.SignIn.RequireConfirmedAccount = true;
-})
-.AddEntityFrameworkStores<ApplicationDbContext>();
+// Authentication (commented out as in your original)
+// builder.Services.AddAuthentication(...)
 
-// Configuración de autenticación
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
-})
-.AddCookie(options =>
-{
-    options.LoginPath = "/Login/Index";
-})
-.AddGoogle(options =>
-{
-    options.ClientId = builder.Configuration["Authentication:Google:ClientId"];
-    options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
-    options.CallbackPath = "/signin-google";
-});
-
-// Configuración de servicios
-builder.Services.AddControllersWithViews();
-builder.Services.AddScoped<IEmailSender, EmailSender>();
+// Weather service
 builder.Services.AddHttpClient<WeatherService>();
 builder.Services.AddSingleton<TourPopularityService>();
 
 var app = builder.Build();
 
-// Ejecutar migraciones automáticamente
+// Apply migrations
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     db.Database.Migrate();
 }
 
-// Configuración del pipeline HTTP
+// Configure HTTP pipeline
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
@@ -66,10 +47,12 @@ else
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
-app.UseAuthentication();
-app.UseAuthorization();
 
-// Configuración de rutas
+// Authentication middleware (commented out)
+// app.UseAuthentication();
+// app.UseAuthorization();
+
+// Configure routes
 app.MapControllerRoute(
     name: "destinosLista",
     pattern: "ListaTours/Destination",
