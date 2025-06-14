@@ -1,11 +1,24 @@
 @{
-    ViewData["Title"] = "Confirmación de Correo";
+    ViewData["Title"] = "Confirmación de Cuenta";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.HideHeaderFooter = true;
 }
 
-<div class="container mt-5 text-center">
-    <h2 class="mb-4">Confirmación de Cuenta</h2>
-    <div class="alert alert-info">
-        @ViewBag.Mensaje
+@section Styles {
+    <link rel="stylesheet" href="~/css/ConfirmaciónCuenta/style.css" asp-append-version="true"/>
+}
+
+<div class="confirmation-container">
+    <div class="confirmation-card">
+        <i class="confirmation-icon bi bi-check-circle-fill"></i> <!-- Usando Bootstrap Icons -->
+        <h1 class="confirmation-title">Confirmación de Cuenta</h1>
+        
+        <div class="confirmation-message alert alert-info">
+            @ViewBag.Mensaje
+        </div>
+        
+        <a class="confirmation-button btn btn-primary" href="@Url.Action("Index", "Login")">
+            <i class="bi bi-box-arrow-in-right me-2"></i>Ir a Iniciar Sesión
+        </a>
     </div>
-    <a class="btn btn-primary mt-3" href="@Url.Action("Index", "Login")">Ir a Iniciar Sesión</a>
 </div>

@@ -3,32 +3,24 @@ using AgenciaDeViajes.Data;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using AgenciaDeViajes.Services;
 using Microsoft.AspNetCore.Authentication.Google;
-using Microsoft.AspNetCore.Identity; // <-- Añadir este using para Identity
-using Microsoft.AspNetCore.Identity.UI.Services; // <-- Opcional: para servicios de email
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddScoped<IEmailSender, EmailSender>();
 
-// Agregar servicios MVC
-builder.Services.AddControllersWithViews();
-
-// Configuración de la cadena de conexión (usa Render o local)
+// Configuración de la base de datos
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(connectionString));
 
-// ===== CONFIGURACIÓN DE IDENTITY CON CONFIRMACIÓN DE CORREO =====
+// Configuración de Identity
 builder.Services.AddDefaultIdentity<IdentityUser>(options => 
 {
-    options.SignIn.RequireConfirmedAccount = true; // Requiere confirmación de email
-    // Opcional: puedes agregar más configuraciones de Identity aquí
-    // options.Password.RequireDigit = true;
-    // etc...
+    options.SignIn.RequireConfirmedAccount = true;
 })
 .AddEntityFrameworkStores<ApplicationDbContext>();
 
-// Autenticación: Cookies + Google
+// Configuración de autenticación
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
@@ -45,28 +37,19 @@ builder.Services.AddAuthentication(options =>
     options.CallbackPath = "/signin-google";
 });
 
-// builder.Services.AddAuthorization();
-// builder.Services.AddAuthorization();
-
-// === REGISTRO DEL SERVICIO DE CLIMA ===
+// Configuración de servicios
+builder.Services.AddControllersWithViews();
+builder.Services.AddScoped<IEmailSender, EmailSender>();
 builder.Services.AddHttpClient<WeatherService>();
-builder.Services.AddHttpClient<WeatherService>();
-
 builder.Services.AddSingleton<TourPopularityService>();
-
-// === OPCIONAL: Servicio para enviar emails (deberás implementarlo) ===
-// builder.Services.AddTransient<IEmailSender, EmailSender>();
 
 var app = builder.Build();
 
-// Ejecutar migraciones automáticamente en producción
+// Ejecutar migraciones automáticamente
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    db.Database.Migrate(); // Esto crea/modifica tablas en Render
-    
-    // Opcional: puedes agregar aquí la creación de roles iniciales
-    // o un usuario admin por defecto si lo necesitas
+    db.Database.Migrate();
 }
 
 // Configuración del pipeline HTTP
@@ -82,34 +65,27 @@ else
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-
 app.UseRouting();
-
-
 app.UseAuthentication();
 app.UseAuthorization();
 
-
-// === RUTA EXPLÍCITA PARA DESTINATION ===
+// Configuración de rutas
 app.MapControllerRoute(
     name: "destinosLista",
     pattern: "ListaTours/Destination",
     defaults: new { controller = "ListaTours", action = "Destination" }
 );
 
-// === RUTA SEO PARA DETALLES DE DESTINO ===
 app.MapControllerRoute(
     name: "detallesDestinoSeo",
     pattern: "ListaTours/{nombreSeo}",
     defaults: new { controller = "ListaTours", action = "Details" }
 );
 
-// === RUTA POR DEFECTO ===
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
-// === HABILITAR RUTAS DE IDENTITY (PARA LOGIN/REGISTER/ETC) ===
-app.MapRazorPages(); // <-- Necesario para las páginas de Identity
+app.MapRazorPages();
 
 app.Run();
