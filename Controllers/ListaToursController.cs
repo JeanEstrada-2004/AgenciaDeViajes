@@ -20,44 +20,76 @@ namespace AgenciaDeViajes.Controllers
             _ia = ia;
         }
 
-        public IActionResult Destination()
+        public IActionResult Destination(string? nombre, string? precio, string? duracion, string? region, int page = 1, int pageSize = 6)
         {
-            // 1. Cargar regiones con destinos
             var regiones = _context.Regiones
                 .Include(r => r.Destinos)
                 .ToList();
 
-            // 2. Obtener destinos populares usando IA
-            var destinosPopulares = new List<Destino>();
-            foreach (var region in regiones)
+            // Filtro avanzado
+            if (!string.IsNullOrEmpty(nombre))
             {
-                foreach (var destino in region.Destinos)
-                {
-                    var prediccion = _ia.PredecirPopularidad(
-                        destino.id_destino,
-                        2,
-                        (float)destino.precio_tour
-                    );
+                regiones.ForEach(r => r.Destinos = r.Destinos
+                    .Where(d => d.nom_destino.Contains(nombre, StringComparison.OrdinalIgnoreCase)).ToList());
+            }
 
-                    if (prediccion.EsPopular)// ¡Así forzamos a que sí muestre!
+            if (!string.IsNullOrEmpty(precio) && decimal.TryParse(precio, out decimal pFiltrado))
+            {
+                regiones.ForEach(r => r.Destinos = r.Destinos
+                    .Where(d => d.precio_tour == pFiltrado).ToList());
+            }
+
+            if (!string.IsNullOrEmpty(duracion))
+            {
+                regiones.ForEach(r => r.Destinos = r.Destinos
+                    .Where(d => d.time_tour.Equals(duracion, StringComparison.OrdinalIgnoreCase)).ToList());
+            }
+
+            if (!string.IsNullOrEmpty(region))
+            {
+                regiones = regiones
+                    .Where(r => r.desc_region.Split('-')[0].Trim()
+                    .Contains(region, StringComparison.OrdinalIgnoreCase)).ToList();
+            }
+
+            // Predicción IA
+            var destinosPopulares = new List<Destino>();
+            foreach (var regionItem in regiones)
+            {
+                foreach (var destino in regionItem.Destinos)
+                {
+                    var prediccion = _ia.PredecirPopularidad(destino.id_destino, 2, (float)destino.precio_tour);
+                    if (prediccion.EsPopular)
                     {
                         destinosPopulares.Add(destino);
                     }
-
-                    /* Console.WriteLine($"▶️ {destino.nom_destino} → " +
-                    $"Popular: {prediccion.EsPopular} | " +
-                    $"Probabilidad: {prediccion.Probability} | " +
-                    $"Score: {prediccion.Score}"); */
                 }
             }
 
-            // 3. Crear ViewModel combinado
+            // Paginación
+            var destinosTodos = regiones.SelectMany(r => r.Destinos).ToList();
+            int totalDestinos = destinosTodos.Count;
+            var destinosPaginados = destinosTodos
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            // Distribuir los destinos paginados a sus regiones (por consistencia)
+            foreach (var regionItem in regiones)
+            {
+                regionItem.Destinos = regionItem.Destinos
+                    .Where(d => destinosPaginados.Any(dp => dp.id_destino == d.id_destino))
+                    .ToList();
+            }
+
             var viewModel = new RegionDestinoIAViewModel
             {
                 Regiones = regiones,
-                DestinosPopulares = destinosPopulares.Take(4).ToList()
+                DestinosPopulares = destinosPopulares.Take(4).ToList(),
+                PaginaActual = page,
+                TotalPaginas = (int)Math.Ceiling((double)totalDestinos / pageSize)
             };
-            
+
             return View(viewModel);
         }
 

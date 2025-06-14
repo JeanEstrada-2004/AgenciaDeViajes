@@ -18,6 +18,8 @@
 <link rel="stylesheet" href="@Url.Content("~/Lista_Tours/css/owl.carousel.min.css")">
 <link rel="stylesheet" href="@Url.Content("~/Lista_Tours/css/owl.theme.default.min.css")">
 
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+
 <!-- INICIO DE BANNER -->
 <section class="hero-wrap hero-wrap-2 " style="background-image: url('@Url.Content("~/Lista_Tours/images/bg_1.jpg")');" data-stellar-background-ratio="0.5">
     <div class="overlay"></div>
@@ -109,6 +111,81 @@
 <!-- FIN DE REGIONES PARA VIAJAR -->
 
 
+<!-- BUSQUEDA DE DESTINOS MEJORADA CON TÍTULO -->
+<section class="destination-search-section">
+    <div class="container">
+        <div class="search-header text-center mb-4">
+            <h2 class="search-title">Encuentra tu destino perfecto</h2>
+            <p class="search-subtitle">Explora entre nuestras increíbles opciones de viaje</p>
+        </div>
+        
+        <form method="get" asp-action="Destination" class="search-form shadow-sm">
+            <div class="search-input-group">
+                <!-- Campo de búsqueda por nombre -->
+                <div class="search-field">
+                    <i class="bi bi-search"></i>
+                    <input type="text" name="nombre" class="form-control search-input" 
+                        placeholder="Nombre del destino" list="nombresDestinos" />
+                    <datalist id="nombresDestinos">
+                        @foreach (var region in Model.Regiones)
+                        {
+                            foreach (var destino in region.Destinos)
+                            {
+                                <option value="@destino.nom_destino" />
+                            }
+                        }
+                    </datalist>
+                </div>
+
+                <!-- Selector de precio -->
+                <div class="search-field">
+                    <i class="bi bi-tag"></i>
+                    <select name="precio" class="form-control search-select">
+                        <option value="">Todos los precios</option>
+                        @foreach (var p in Model.Regiones.SelectMany(r => r.Destinos).Select(d => d.precio_tour).Distinct().OrderBy(p => p))
+                        {
+                            <option value="@p">@("S/. " + p.ToString("0.00"))</option>
+                        }
+                    </select>
+                </div>
+
+                <!-- Selector de duración -->
+                <div class="search-field">
+                    <i class="bi bi-clock"></i>
+                    <select name="duracion" class="form-control search-select">
+                        <option value="">Todas las duraciones</option>
+                        @foreach (var t in Model.Regiones.SelectMany(r => r.Destinos).Select(d => d.time_tour).Distinct())
+                        {
+                            <option value="@t">@t</option>
+                        }
+                    </select>
+                </div>
+
+                <!-- Búsqueda por región -->
+                <div class="search-field">
+                    <i class="bi bi-geo-alt"></i>
+                    <input type="text" name="region" class="form-control search-input" 
+                        placeholder="Todas las regiones" list="regiones" />
+                    <datalist id="regiones">
+                        @foreach (var region in Model.Regiones)
+                        {
+                            <option value="@region.desc_region.Split('-')[0].Trim()" />
+                        }
+                    </datalist>
+                </div>
+
+                <!-- Botón de búsqueda -->
+                <button type="submit" class="search-button">
+                    <i class="bi bi-search"></i> Buscar
+                </button>
+            </div>
+        </form>
+    </div>
+</section>
+
+
+
+
 <!-- SECCIÓN DE LA LISTA DE DESTINOS -->
 <section class="ftco-section ftco-no-pt">
     <div class="container">
@@ -158,15 +235,29 @@
             <div class="col text-center">
                 <div class="block-27">
                     <ul>
-                        <li><a href="#">&lt;</a></li>
-                        <li class="active"><span>1</span></li>
-                        <li><a href="#">2</a></li>
-                        <li><a href="#">3</a></li>
-                        <li><a href="#">4</a></li>
-                        <li><a href="#">5</a></li>
-                        <li><a href="#">&gt;</a></li>
+                        @if (Model.PaginaActual > 1)
+                        {
+                            <li>
+                                <a asp-action="Destination" asp-route-page="@(Model.PaginaActual - 1)">«</a>
+                            </li>
+                        }
+
+                        @for (int i = 1; i <= Model.TotalPaginas; i++)
+                        {
+                            <li class="@(i == Model.PaginaActual ? "active" : "")">
+                                <a asp-action="Destination" asp-route-page="@i">@i</a>
+                            </li>
+                        }
+
+                        @if (Model.PaginaActual < Model.TotalPaginas)
+                        {
+                            <li>
+                                <a asp-action="Destination" asp-route-page="@(Model.PaginaActual + 1)">»</a>
+                            </li>
+                        }
                     </ul>
                 </div>
+
             </div>
         </div>
     </div>
