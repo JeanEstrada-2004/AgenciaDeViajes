@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using AgenciaDeViajes.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+// Agrega esto con los otros servicios
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 // Agregar servicios MVC
 builder.Services.AddControllersWithViews();
