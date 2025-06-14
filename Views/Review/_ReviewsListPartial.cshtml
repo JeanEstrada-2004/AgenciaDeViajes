@@ -1,0 +1,42 @@
+@foreach (var review in Model)
+{
+    var promedioEstrellas = (review.CalificacionAtencion + review.CalificacionCalidad + review.CalificacionPuntualidad) / 3.0;
+    <div class="col-12 border rounded p-3 shadow-sm bg-white">
+        <div class="row align-items-center">
+            <!-- Columna 1: Usuario y promedio estrellas -->
+            <div class="col-md-3 text-center text-md-start mb-3 mb-md-0">
+                <strong class="d-block mb-1">@review.Usuario?.NombreCompleto ?? "Usuario Anónimo"</strong>
+                <div class="d-flex justify-content-center justify-content-md-start align-items-center">
+                    <span class="me-2">Promedio estrellas:</span>
+                    <span class="badge bg-warning text-dark fs-6 px-3 py-2 rounded">
+                        @promedioEstrellas.ToString("0.0")
+                    </span>
+                </div>
+            </div>
+
+            <!-- Columna 2: Comentario -->
+            <div class="col-md-6">
+                <p class="mb-0 fst-italic text-secondary">"@review.Comentario"</p>
+            </div>
+
+            <!-- Columna 3: Sentimiento e icono -->
+            <div class="col-md-3 text-center">
+                @if (review.Sentimiento == "Positivo")
+                {
+                    <span class="text-success fs-1">&#128522;</span>
+                    <p class="mt-2 fw-semibold text-success">Gracias, que bueno que te haya gustado</p>
+                }
+                else if (review.Sentimiento == "Negativo")
+                {
+                    <span class="text-danger fs-1">&#128577;</span>
+                    <p class="mt-2 fw-semibold text-danger">Ups, lo siento, haremos lo posible por mejorar</p>
+                }
+                else
+                {
+                    <span class="text-secondary fs-1">&#128528;</span>
+                    <p class="mt-2 fw-semibold text-secondary">Gracias por tu opinión</p>
+                }
+            </div>
+        </div>
+    </div>
+}

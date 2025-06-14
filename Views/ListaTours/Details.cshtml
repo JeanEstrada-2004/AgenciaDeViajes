@@ -57,6 +57,7 @@
         padding: 40px;
         border: 1px solid #eee;
     }
+
     /* --- REVIEW ELEGANTE --- */
     .review-section-elegant {
         background: #113d48;
@@ -230,7 +231,8 @@
                 <!-- --- REVIEW ELEGANTE --- -->
                 <div class="review-section-elegant">
                     <!-- Formulario -->
-                    <form class="review-form-elegant" method="post">
+                    <form id="reviewForm" class="review-form-elegant" method="post">
+                        @Html.AntiForgeryToken()
                         <h4 class="mb-4 text-center">¿Cómo fue tu experiencia?</h4>
                         <div class="row">
                             <div class="col-md-4 mb-3">
@@ -245,7 +247,7 @@
                             </div>
                             <div class="col-md-4 mb-3">
                                 <div class="rating-label">Calidad del Servicio</div>
-                                <div class="rating-stars" data-criteria="servicio">
+                                <div class="rating-stars" data-criteria="calidad">
                                     <i class="bi bi-star" data-value="1"></i>
                                     <i class="bi bi-star" data-value="2"></i>
                                     <i class="bi bi-star" data-value="3"></i>
@@ -254,8 +256,8 @@
                                 </div>
                             </div>
                             <div class="col-md-4 mb-3">
-                                <div class="rating-label">Responsabilidad y Seguridad</div>
-                                <div class="rating-stars" data-criteria="responsabilidad">
+                                <div class="rating-label">Puntualidad</div>
+                                <div class="rating-stars" data-criteria="puntualidad">
                                     <i class="bi bi-star" data-value="1"></i>
                                     <i class="bi bi-star" data-value="2"></i>
                                     <i class="bi bi-star" data-value="3"></i>
@@ -273,68 +275,21 @@
                         </div>
                     </form>
 
-                    <!-- Listado de reviews (mockup, reemplazar por foreach backend después) -->
-                    <div class="review-list-elegant">
-                        <div class="review-row">
-                            <div class="review-col text-center">
-                                <div class="review-name">Juan Pérez</div>
-                                <div class="review-stars-static">
-                                    <i class="bi bi-star-fill"></i>
-                                    <i class="bi bi-star-fill"></i>
-                                    <i class="bi bi-star-fill"></i>
-                                    <i class="bi bi-star-fill"></i>
-                                    <i class="bi bi-star-half"></i>
-                                    <span class="ms-2" style="color:#aaa; font-weight:500; font-size:1rem;">4.5</span>
-                                </div>
-                            </div>
-                            <div class="review-col">
-                                <div class="review-comment">
-                                    ¡Me encantó el tour, los guías muy atentos y todo muy bien organizado! Lo recomiendo totalmente.
-                                </div>
-                            </div>
-                            <div class="review-col text-center">
-                                <div class="review-ia-happy">
-                                    <i class="bi bi-emoji-smile"></i>
-                                    Gracias, ¡qué bueno que te haya gustado!
-                                </div>
-                            </div>
-                        </div>
-                        <div class="review-row">
-                            <div class="review-col text-center">
-                                <div class="review-name">María López</div>
-                                <div class="review-stars-static">
-                                    <i class="bi bi-star-fill"></i>
-                                    <i class="bi bi-star-fill"></i>
-                                    <i class="bi bi-star-fill"></i>
-                                    <i class="bi bi-star"></i>
-                                    <i class="bi bi-star"></i>
-                                    <span class="ms-2" style="color:#aaa; font-weight:500; font-size:1rem;">3.0</span>
-                                </div>
-                            </div>
-                            <div class="review-col">
-                                <div class="review-comment">
-                                    El tour estuvo bien, pero la comida podría mejorar y el transporte llegó tarde.
-                                </div>
-                            </div>
-                            <div class="review-col text-center">
-                                <div class="review-ia-sad">
-                                    <i class="bi bi-emoji-frown"></i>
-                                    Ups, lo sentimos. ¡Haremos lo posible por mejorar!
-                                </div>
-                            </div>
-                        </div>
+                    <!-- Listado de reviews -->
+                    <div id="reviews-container" class="review-list-elegant mt-4">
+                        @await Component.InvokeAsync("ReviewList", new { destinoId = Model.Destino.id_destino })
                     </div>
                 </div>
-                <!-- FIN SECCIÓN REVIEWS -->
+
             </div>
 
-            <!-- Columna derecha -->
             <div class="col-md-4">
                 <div class="bg-light p-4 rounded mb-4">
                     <ul class="list-group mb-3">
                         <li class="list-group-item"><strong>Precio del tour:</strong> S/. @Model.Destino.precio_tour.ToString("0.00")</li>
                     </ul>
                 </div>
+
                 <div class="card shadow p-4 mb-4">
                     <h5 class="mb-3 text-primary">Reserva tu experiencia</h5>
                     <form asp-controller="CarritoCompra" asp-action="IniciarReserva" method="post">
@@ -360,35 +315,28 @@
                         <div class="mb-3">
                             <label class="form-label">Servicios adicionales</label>
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="ServiciosAdicionales" value="Recojo del hospedaje" id="servRecojo">
-                                <label class="form-check-label" for="servRecojo">
-                                    Recojo del hospedaje
-                                </label>
+                                <input class="form-check-input" type="checkbox" name="ServiciosAdicionales" value="Recojo del hospedaje" id="servRecojo" />
+                                <label class="form-check-label" for="servRecojo">Recojo del hospedaje</label>
                             </div>
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="ServiciosAdicionales" value="Desayuno incluido" id="servDesayuno">
-                                <label class="form-check-label" for="servDesayuno">
-                                    Desayuno incluido
-                                </label>
+                                <input class="form-check-input" type="checkbox" name="ServiciosAdicionales" value="Desayuno incluido" id="servDesayuno" />
+                                <label class="form-check-label" for="servDesayuno">Desayuno incluido</label>
                             </div>
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="ServiciosAdicionales" value="Guía bilingüe" id="servGuia">
-                                <label class="form-check-label" for="servGuia">
-                                    Guía bilingüe
-                                </label>
+                                <input class="form-check-input" type="checkbox" name="ServiciosAdicionales" value="Guía bilingüe" id="servGuia" />
+                                <label class="form-check-label" for="servGuia">Guía bilingüe</label>
                             </div>
                         </div>
                         <button type="submit" class="btn btn-primary w-100">Añadir al carrito</button>
                     </form>
                 </div>
+
                 <!-- CLIMA ACTUAL -->
                 <div class="addons-clima">
                     @if (Model.Clima != null)
                     {
                         <div class="alert  d-flex align-items-center mb-4">
-                            <img src="@iconUrl"
-                                alt="Clima"
-                                style="width:50px;height:50px;margin-right:10px;">
+                            <img src="@iconUrl" alt="Clima" style="width:50px;height:50px;margin-right:10px;" />
                             <div>
                                 <strong>Clima actual en @Model.Clima.City:</strong><br />
                                 @Model.Clima.Description, @Model.Clima.Temperature &deg;C
@@ -401,9 +349,10 @@
                     }
                 </div>
                 <!-- FIN CLIMA -->
+
                 <div class="addons-pay">
                     <h4>Medios de pago</h4>
-                    <img src="https://arequipaturismo.com/cloud/pay-mercadopago.png" style="max-width: 160px;">
+                    <img src="https://arequipaturismo.com/cloud/pay-mercadopago.png" style="max-width: 160px;" />
                 </div>
             </div>
         </div>
@@ -417,17 +366,86 @@
 </section>
 
 <script>
+    // Variables para almacenar el rating seleccionado por cada criterio
+    const ratings = {
+        atencion: 0,
+        calidad: 0,
+        puntualidad: 0
+    };
+
+    // Manejar clic en estrellas
     document.querySelectorAll('.rating-stars').forEach(group => {
+        const criteria = group.dataset.criteria;
         const stars = group.querySelectorAll('i');
-        stars.forEach(star => {
+        stars.forEach((star, index) => {
             star.addEventListener('click', () => {
-                const value = parseInt(star.getAttribute('data-value'));
-                stars.forEach(s => s.classList.remove('active'));
-                for (let i = 0; i < value; i++) {
-                    stars[i].classList.add('active');
-                }
-                // TODO: Guarda este value en un input hidden o variable para el submit
+                ratings[criteria] = index + 1;
+                stars.forEach((s, i) => {
+                    s.classList.toggle('active', i <= index);
+                });
             });
         });
+    });
+
+    // Manejar envío del formulario por AJAX
+    document.getElementById('reviewForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        // Validar que todos los criterios estén calificados
+        if (ratings.atencion === 0 || ratings.calidad === 0 || ratings.puntualidad === 0) {
+            alert('Por favor, califica todos los criterios.');
+            return;
+        }
+
+        // Validar comentario
+        const comentario = document.getElementById('comentario').value.trim();
+        if (!comentario) {
+            alert('Por favor, escribe un comentario.');
+            return;
+        }
+
+        // Preparar datos para enviar
+        const data = new URLSearchParams();
+        data.append('destinoId', '@Model.Destino.id_destino');
+        data.append('atencion', ratings.atencion);
+        data.append('calidad', ratings.calidad);
+        data.append('puntualidad', ratings.puntualidad);
+        data.append('comentario', comentario);
+
+        // Token antifalsificación
+        const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+        // Enviar POST AJAX
+        fetch('@Url.Action("CrearReview", "Review")', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'RequestVerificationToken': token
+            },
+            body: data.toString()
+        })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    alert(result.message);
+                    // Limpiar formulario
+                    document.getElementById('reviewForm').reset();
+                    document.querySelectorAll('.rating-stars i').forEach(star => star.classList.remove('active'));
+                    // Recargar lista reviews
+                    recargarReviews();
+                } else {
+                    alert(result.message);
+                }
+            })
+            .catch(() => alert('Error al enviar la calificación.'));
+
+        // Función para recargar lista de reviews
+        function recargarReviews() {
+            fetch('@Url.Action("ListarPorDestino", "Review", new { destinoId = Model.Destino.id_destino })')
+                .then(response => response.text())
+                .then(html => {
+                    document.getElementById('reviews-container').innerHTML = html;
+                });
+        }
     });
 </script>

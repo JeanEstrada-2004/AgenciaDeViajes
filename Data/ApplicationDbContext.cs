@@ -23,6 +23,9 @@ namespace AgenciaDeViajes.Data
         public DbSet<PasajeroReserva> PasajerosReserva { get; set; }
         public DbSet<ReservaServicioAdicional> ReservaServiciosAdicionales { get; set; }
 
+        // Agrega el DbSet para Reviews (comentarios y valoraciones)
+        public DbSet<Review> Reviews { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // Configuración de relaciones para Destino <-> Region
