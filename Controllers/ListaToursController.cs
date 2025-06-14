@@ -44,10 +44,10 @@ namespace AgenciaDeViajes.Controllers
                         destinosPopulares.Add(destino);
                     }
 
-                    Console.WriteLine($"▶️ {destino.nom_destino} → " +
+                    /* Console.WriteLine($"▶️ {destino.nom_destino} → " +
                     $"Popular: {prediccion.EsPopular} | " +
                     $"Probabilidad: {prediccion.Probability} | " +
-                    $"Score: {prediccion.Score}");
+                    $"Score: {prediccion.Score}"); */
                 }
             }
 

@@ -85,13 +85,10 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-// Comentado si no se usa autenticación aún
-// app.UseAuthentication();
-// app.UseAuthorization();
 
-// Comentado si no se usa autenticación aún
-// app.UseAuthentication();
-// app.UseAuthorization();
+app.UseAuthentication();
+app.UseAuthorization();
+
 
 // === RUTA EXPLÍCITA PARA DESTINATION ===
 app.MapControllerRoute(
