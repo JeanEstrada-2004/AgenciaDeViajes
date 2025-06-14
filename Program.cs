@@ -50,6 +50,7 @@ builder.Services.AddAuthentication(options =>
 
 // === REGISTRO DEL SERVICIO DE CLIMA ===
 builder.Services.AddHttpClient<WeatherService>();
+builder.Services.AddHttpClient<WeatherService>();
 
 builder.Services.AddSingleton<TourPopularityService>();
 
@@ -83,6 +84,10 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+
+// Comentado si no se usa autenticación aún
+// app.UseAuthentication();
+// app.UseAuthorization();
 
 // Comentado si no se usa autenticación aún
 // app.UseAuthentication();
