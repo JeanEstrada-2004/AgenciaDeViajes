@@ -145,7 +145,7 @@ namespace AgenciaDeViajes.Controllers
                 return Json(new { message = "No hay datos de reserva" });
 
             // CAMBIA ESTA URL cada vez que ngrok te dé una nueva, SOLO httpS.
-            string publicBaseUrl = "https://3db0-190-239-89-127.ngrok-free.app"; // <-- ACTUALIZA aquí tu URL pública de ngrok
+            string publicBaseUrl = "https://6985-190-239-93-103.ngrok-free.app"; // <-- ACTUALIZA aquí tu URL pública de ngrok
 
             string successUrl = $"{publicBaseUrl}/CarritoCompra/ReservaConfirmacion";
             string failureUrl = $"{publicBaseUrl}/CarritoCompra/ReservaUsuarioPago";

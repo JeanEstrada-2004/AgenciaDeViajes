@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using AgenciaDeViajes.Data;
 using AgenciaDeViajes.Models;
+using AgenciaDeViajes.ML;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -10,23 +12,34 @@ namespace AgenciaDeViajes.Controllers
     public class ReviewController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly SentimientoPredictionService _sentimientoService;
 
-        public ReviewController(ApplicationDbContext context)
+        public ReviewController(ApplicationDbContext context, SentimientoPredictionService sentimientoService)
         {
             _context = context;
+            _sentimientoService = sentimientoService;
         }
 
-        // POST: Review/Crear
         [HttpPost]
         public async Task<IActionResult> CrearReview(int destinoId, int atencion, int calidad, int puntualidad, string comentario)
         {
             if (!User.Identity.IsAuthenticated)
                 return Json(new { success = false, message = "Debes iniciar sesión para enviar un comentario." });
 
-            // Ya no buscamos usuario, no usamos IdUsuario
+            if (string.IsNullOrWhiteSpace(comentario))
+                return Json(new { success = false, message = "El comentario no puede estar vacío." });
 
-            // Por ahora dejamos "Neutro" para que puedas integrar IA después.
             string sentimiento = "Neutro";
+
+            try
+            {
+                bool esPositivo = _sentimientoService.PredecirSentimiento(comentario);
+                sentimiento = esPositivo ? "Positivo" : "Negativo";
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error al predecir sentimiento: {ex.Message}");
+            }
 
             var review = new Review
             {
@@ -46,7 +59,6 @@ namespace AgenciaDeViajes.Controllers
             return Json(new { success = true, message = "Comentario guardado correctamente." });
         }
 
-        // GET: Review/ListarPorDestino/5
         public async Task<IActionResult> ListarPorDestino(int destinoId)
         {
             var reviews = await _context.Reviews
