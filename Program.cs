@@ -2,38 +2,63 @@ using Microsoft.EntityFrameworkCore;
 using AgenciaDeViajes.Data;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using AgenciaDeViajes.Services;
+using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-builder.Services.AddControllersWithViews(); // This is the critical line you're missing
-builder.Services.AddRazorPages(); // If you're using Razor Pages
+// Configuración de servicios MVC
+builder.Services.AddControllersWithViews();
+builder.Services.AddRazorPages();
 
-// Add your services
-builder.Services.AddScoped<IEmailService, EmailService>();
-
-// Database configuration
+// Configuración de base de datos
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(connectionString));
 
-// Authentication (commented out as in your original)
-// builder.Services.AddAuthentication(...)
+// Configuración de Identity
+builder.Services.AddDefaultIdentity<IdentityUser>(options => 
+{
+    options.SignIn.RequireConfirmedAccount = true;
+})
+.AddEntityFrameworkStores<ApplicationDbContext>();
 
-// Weather service
+// Configuración de autenticación
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
+})
+.AddCookie(options =>
+{
+    options.LoginPath = "/Login/Index";
+})
+.AddGoogle(options =>
+{
+    options.ClientId = builder.Configuration["Authentication:Google:ClientId"];
+    options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+    options.CallbackPath = "/signin-google";
+});
+
+builder.Services.AddAuthorization();
+
+// Registro de servicios personalizados
+builder.Services.AddScoped<IEmailSender, EmailSender>();
+builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddHttpClient<WeatherService>();
 builder.Services.AddSingleton<TourPopularityService>();
 
 var app = builder.Build();
 
-// Apply migrations
+// Aplicar migraciones
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     db.Database.Migrate();
 }
 
-// Configure HTTP pipeline
+// Configuración del pipeline HTTP
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
@@ -47,12 +72,10 @@ else
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
+app.UseAuthentication();
+app.UseAuthorization();
 
-// Authentication middleware (commented out)
-// app.UseAuthentication();
-// app.UseAuthorization();
-
-// Configure routes
+// Configuración de rutas
 app.MapControllerRoute(
     name: "destinosLista",
     pattern: "ListaTours/Destination",
