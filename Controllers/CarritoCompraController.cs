@@ -5,6 +5,7 @@ using System.Text.Json;
 using System.Text;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using Microsoft.EntityFrameworkCore;
 
 namespace AgenciaDeViajes.Controllers
 {
@@ -15,6 +16,13 @@ namespace AgenciaDeViajes.Controllers
         public CarritoCompraController(ApplicationDbContext context)
         {
             _context = context;
+        }
+
+        // Helper para usuario actual
+        private Usuario? GetUsuarioActual()
+        {
+            var nombreUsuario = User.Identity?.Name;
+            return _context.Usuarios.FirstOrDefault(u => u.NombreUsuario == nombreUsuario);
         }
 
         // GET: Vista de datos de pasajeros
@@ -39,12 +47,75 @@ namespace AgenciaDeViajes.Controllers
             return RedirectToAction("ReservaDatos");
         }
 
-        // POST: Recibe datos de pasajeros y actualiza la sesión
+        // POST: Recibe datos de pasajeros y actualiza la sesión y CREA la reserva pendiente
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult ReservaUsuarioPago(ReservaCarritoViewModel model)
         {
             HttpContext.Session.SetString("CarritoReserva", JsonSerializer.Serialize(model));
+            var usuario = GetUsuarioActual();
+            if (usuario == null) return RedirectToAction("Index", "Home");
+
+            // Evitar duplicidad: solo crea si no existe pendiente para este usuario/destino/fecha
+            var existeReserva = _context.Reservas.Any(r =>
+                r.IdUsuario == usuario.IdUsuario &&
+                r.IdDestino == model.DestinoId &&
+                r.FechaTour == DateTime.Parse(model.FechaElegida) &&
+                r.Estado == "Pendiente"
+            );
+
+            if (!existeReserva)
+            {
+                var reserva = new Reserva
+                {
+                    IdUsuario = usuario.IdUsuario,
+                    IdDestino = model.DestinoId,
+                    FechaReserva = DateTime.Now,
+                    FechaTour = DateTime.Parse(model.FechaElegida),
+                    CantidadAdultos = model.CantidadAdultos,
+                    CantidadNinos = model.CantidadNinos,
+                    PrecioTotal = (decimal)(model.PrecioTour * (model.CantidadAdultos + model.CantidadNinos)),
+                    Estado = "Pendiente",
+                    MetodoPago = "MercadoPago",
+                    FechaPago = null
+                };
+                _context.Reservas.Add(reserva);
+                _context.SaveChanges();
+
+                // Guardar pasajeros
+                if (model.Pasajeros != null && model.Pasajeros.Any())
+                {
+                    foreach (var pasajero in model.Pasajeros)
+                    {
+                        var pasajeroDb = new PasajeroReserva
+                        {
+                            IdReserva = reserva.IdReserva,
+                            Tipo = pasajero.Tipo,
+                            NombreCompleto = pasajero.NombreCompleto,
+                            Documento = pasajero.Documento,
+                            Telefono = pasajero.Telefono,
+                            Pais = pasajero.Pais
+                        };
+                        _context.PasajerosReserva.Add(pasajeroDb);
+                    }
+                }
+
+                // Guardar servicios adicionales
+                if (model.ServiciosAdicionales != null && model.ServiciosAdicionales.Any())
+                {
+                    foreach (var serv in model.ServiciosAdicionales)
+                    {
+                        var servDb = new ReservaServicioAdicional
+                        {
+                            IdReserva = reserva.IdReserva,
+                            Servicio = serv
+                        };
+                        _context.ReservaServiciosAdicionales.Add(servDb);
+                    }
+                }
+                _context.SaveChanges();
+            }
+
             return RedirectToAction("ReservaUsuarioPago");
         }
 
@@ -61,7 +132,7 @@ namespace AgenciaDeViajes.Controllers
             return View(model);
         }
 
-        // === INTEGRACIÓN MERCADOPAGO CHECKOUT PRO ===
+        // INTEGRACIÓN MERCADOPAGO CHECKOUT PRO
         [HttpPost]
         public async Task<IActionResult> CrearPreferenciaPRO()
         {
@@ -74,7 +145,7 @@ namespace AgenciaDeViajes.Controllers
                 return Json(new { message = "No hay datos de reserva" });
 
             // CAMBIA ESTA URL cada vez que ngrok te dé una nueva, SOLO httpS.
-            string publicBaseUrl = "https://3db0-190-239-89-127.ngrok-free.app"; // <-- ACTUALIZA aquí tu URL pública de ngrok (sin espacios al final)
+            string publicBaseUrl = "https://3db0-190-239-89-127.ngrok-free.app"; // <-- ACTUALIZA aquí tu URL pública de ngrok
 
             string successUrl = $"{publicBaseUrl}/CarritoCompra/ReservaConfirmacion";
             string failureUrl = $"{publicBaseUrl}/CarritoCompra/ReservaUsuarioPago";
@@ -123,89 +194,10 @@ namespace AgenciaDeViajes.Controllers
 
             return Json(new { preferenceId = preferenceId });
         }
-        // === FINAL INTEGRACIÓN MERCADO PAGO ===
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult ConfirmarReserva()
-        {
-            if (!User.Identity.IsAuthenticated)
-            {
-                TempData["Error"] = "Debe iniciar sesión para reservar.";
-                return RedirectToAction("ReservaUsuarioPago");
-            }
+        // Ya NO necesitas ConfirmarReserva POST si usas el flujo anterior
 
-            var json = HttpContext.Session.GetString("CarritoReserva");
-            ReservaCarritoViewModel? model = null;
-            if (!string.IsNullOrEmpty(json))
-                model = JsonSerializer.Deserialize<ReservaCarritoViewModel>(json);
-            if (model == null)
-                return RedirectToAction("Index", "Home");
-
-            var nombreUsuario = User.Identity.Name;
-            var usuario = _context.Usuarios.FirstOrDefault(u => u.NombreUsuario == nombreUsuario);
-            if (usuario == null)
-            {
-                TempData["Error"] = "Debe iniciar sesión para reservar.";
-                return RedirectToAction("ReservaUsuarioPago");
-            }
-
-            var reserva = new Reserva
-            {
-                IdUsuario = usuario.IdUsuario,
-                IdDestino = model.DestinoId,
-                FechaReserva = DateTime.Now,
-                FechaTour = DateTime.Parse(model.FechaElegida),
-                CantidadAdultos = model.CantidadAdultos,
-                CantidadNinos = model.CantidadNinos,
-                PrecioTotal = (decimal)(model.PrecioTour * (model.CantidadAdultos + model.CantidadNinos)),
-                Estado = "Pendiente",
-                MetodoPago = "MercadoPago",
-                FechaPago = DateTime.Now
-            };
-
-            _context.Reservas.Add(reserva);
-            _context.SaveChanges();
-
-            if (model.Pasajeros != null)
-            {
-                foreach (var pasajero in model.Pasajeros)
-                {
-                    var pasajeroDb = new PasajeroReserva
-                    {
-                        IdReserva = reserva.IdReserva,
-                        Tipo = pasajero.Tipo,
-                        NombreCompleto = pasajero.NombreCompleto,
-                        Documento = pasajero.Documento,
-                        Telefono = pasajero.Telefono,
-                        Pais = pasajero.Pais
-                    };
-                    _context.PasajerosReserva.Add(pasajeroDb);
-                }
-            }
-
-            if (model.ServiciosAdicionales != null)
-            {
-                foreach (var serv in model.ServiciosAdicionales)
-                {
-                    var servDb = new ReservaServicioAdicional
-                    {
-                        IdReserva = reserva.IdReserva,
-                        Servicio = serv
-                    };
-                    _context.ReservaServiciosAdicionales.Add(servDb);
-                }
-            }
-
-            _context.SaveChanges();
-
-            HttpContext.Session.Remove("CarritoReserva");
-
-            // Aquí pasamos el id para cuando el usuario viene del flujo interno (no MercadoPago)
-            return RedirectToAction("ReservaConfirmacion", new { id = reserva.IdReserva });
-        }
-
-        // Ahora soporta ambos flujos: con parámetros de MercadoPago o con id local
+        // GET: Confirmación de reserva (desde MercadoPago o flujo interno)
         [HttpGet]
         public IActionResult ReservaConfirmacion(
             int? id = null,
@@ -215,19 +207,34 @@ namespace AgenciaDeViajes.Controllers
             string status = null,
             string preference_id = null)
         {
+            var usuario = GetUsuarioActual();
             Reserva? reserva = null;
 
-            // Si venimos del flujo local, usamos el id
-            if (id.HasValue)
-                reserva = _context.Reservas.FirstOrDefault(r => r.IdReserva == id.Value);
+            if (usuario != null)
+            {
+                // Busca la reserva pendiente más reciente de ese usuario para ese destino y fecha
+                reserva = _context.Reservas
+                    .Include(r => r.Destino)
+                    .Where(r => r.IdUsuario == usuario.IdUsuario && r.Estado == "Pendiente")
+                    .OrderByDescending(r => r.FechaReserva)
+                    .FirstOrDefault();
 
-            // Si venimos desde MercadoPago y no hay id, puedes mostrar una confirmación genérica
+                // Si el pago fue exitoso (status == "approved"), confirma la reserva
+                if (reserva != null && status == "approved")
+                {
+                    reserva.Estado = "Confirmada";
+                    reserva.FechaPago = DateTime.Now;
+                    reserva.ReferenciaPago = payment_id;
+                    _context.SaveChanges();
+                }
+            }
+
             ViewBag.CollectionId = collection_id;
             ViewBag.Status = status;
             ViewBag.PaymentId = payment_id;
             ViewBag.PreferenceId = preference_id;
 
-            return View(reserva); // La view puede trabajar con reserva nula o no
+            return View(reserva);
         }
     }
 }

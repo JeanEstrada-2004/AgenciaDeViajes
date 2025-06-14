@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -56,8 +55,8 @@ namespace AgenciaDeViajes.Models
         [MaxLength(100)]
         public string? ReferenciaPago { get; set; }
 
-        // Relaciones (EF Core)
+        // Relación Destino (asegúrate de que tu modelo Destino usa id_destino en la BD)
         [ForeignKey("IdDestino")]
-        public Destino Destino { get; set; }
+        public virtual Destino Destino { get; set; }
     }
 }

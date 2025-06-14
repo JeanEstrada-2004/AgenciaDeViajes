@@ -19,8 +19,11 @@ namespace AgenciaDeViajes.Controllers
         {
             var nombreUsuario = User.Identity?.Name;
             var usuario = _context.Usuarios.FirstOrDefault(u => u.NombreUsuario == nombreUsuario);
-            if (usuario != null)
-                ViewBag.NombreCompleto = usuario.NombreCompleto ?? usuario.NombreUsuario;
+            // Mostramos el nombre completo si existe, si no, el nombre de usuario
+            if (usuario != null && !string.IsNullOrEmpty(usuario.NombreCompleto))
+                ViewBag.NombreCompleto = usuario.NombreCompleto;
+            else if (usuario != null)
+                ViewBag.NombreCompleto = usuario.NombreUsuario;
             else
                 ViewBag.NombreCompleto = "Usuario";
             return usuario;
