@@ -9,6 +9,7 @@ using Microsoft.OpenApi.Models;
 using System.Reflection;
 using System.IO;
 using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -67,6 +68,14 @@ else
     Console.WriteLine("Advertencia: Las credenciales de Google no están configuradas. Solo se habilitará autenticación con cookies.");
 }
 
+// Configuración para Render
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
+});
+
 builder.Services.AddAuthorization();
 
 // Registro de servicios personalizados
@@ -123,6 +132,9 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
+// Configuración para Render
+app.UseForwardedHeaders();
+
 // Aplicar migraciones
 using (var scope = app.Services.CreateScope())
 {
@@ -141,25 +153,43 @@ using (var scope = app.Services.CreateScope())
 }
 
 // Configuración del pipeline HTTP
+app.UseSwagger();
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Agencia de Viajes API v1");
+    c.RoutePrefix = "api-docs";
+    c.ConfigObject.AdditionalItems["syntaxHighlight"] = new Dictionary<string, object>
+    {
+        ["activated"] = false
+    };
+    
+    // Configuración adicional para producción
+    c.ConfigObject.AdditionalItems["persistAuthorization"] = true;
+    c.ConfigObject.AdditionalItems["displayRequestDuration"] = true;
+});
+
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
-    app.UseSwagger();
-    app.UseSwaggerUI(c =>
-    {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Agencia de Viajes API v1");
-        c.RoutePrefix = "api-docs";
-        c.ConfigObject.AdditionalItems["syntaxHighlight"] = new Dictionary<string, object>
-        {
-            ["activated"] = false
-        };
-    });
 }
 else
 {
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
+
+// Middleware para manejar correctamente las rutas de Swagger en producción
+app.Use(async (context, next) =>
+{
+    if (context.Request.Path.StartsWithSegments("/api-docs") && 
+        !context.Request.Path.Value.EndsWith(".json"))
+    {
+        context.Response.Redirect("/api-docs/index.html");
+        return;
+    }
+    
+    await next();
+});
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
