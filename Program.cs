@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
 using System.IO;
+using Microsoft.Extensions.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,22 +28,44 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options =>
 })
 .AddEntityFrameworkStores<ApplicationDbContext>();
 
-// Configuración de autenticación
-builder.Services.AddAuthentication(options =>
+// Configuración de autenticación con verificación de credenciales
+var googleAuthSection = builder.Configuration.GetSection("Authentication:Google");
+
+if (!string.IsNullOrEmpty(googleAuthSection["ClientId"]) && !string.IsNullOrEmpty(googleAuthSection["ClientSecret"]))
 {
-    options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
-})
-.AddCookie(options =>
+    builder.Services.AddAuthentication(options =>
+    {
+        options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
+    })
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/Login/Index";
+        options.AccessDeniedPath = "/Login/AccessDenied";
+    })
+    .AddGoogle(options =>
+    {
+        options.ClientId = googleAuthSection["ClientId"];
+        options.ClientSecret = googleAuthSection["ClientSecret"];
+        options.CallbackPath = "/signin-google";
+        
+        // Configuraciones adicionales para obtener más datos del usuario
+        options.SaveTokens = true;
+        options.Scope.Add("profile");
+        options.Scope.Add("email");
+    });
+}
+else
 {
-    options.LoginPath = "/Login/Index";
-})
-.AddGoogle(options =>
-{
-    options.ClientId = builder.Configuration["Authentication:Google:ClientId"];
-    options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
-    options.CallbackPath = "/signin-google";
-});
+    builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+        .AddCookie(options =>
+        {
+            options.LoginPath = "/Login/Index";
+            options.AccessDeniedPath = "/Login/AccessDenied";
+        });
+    
+    Console.WriteLine("Advertencia: Las credenciales de Google no están configuradas. Solo se habilitará autenticación con cookies.");
+}
 
 builder.Services.AddAuthorization();
 
@@ -71,6 +94,16 @@ builder.Services.AddSwaggerGen(c =>
     // Habilita anotaciones de Swagger
     c.EnableAnnotations();
 
+    // Configuración de seguridad para JWT (opcional)
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description = "JWT Authorization header using the Bearer scheme",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer"
+    });
+
     // Configuración del archivo XML de documentación
     try
     {
@@ -93,8 +126,18 @@ var app = builder.Build();
 // Aplicar migraciones
 using (var scope = app.Services.CreateScope())
 {
-    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    db.Database.Migrate();
+    var services = scope.ServiceProvider;
+    try
+    {
+        var db = services.GetRequiredService<ApplicationDbContext>();
+        db.Database.Migrate();
+        
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "Error al aplicar migraciones");
+    }
 }
 
 // Configuración del pipeline HTTP
@@ -106,6 +149,10 @@ if (app.Environment.IsDevelopment())
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "Agencia de Viajes API v1");
         c.RoutePrefix = "api-docs";
+        c.ConfigObject.AdditionalItems["syntaxHighlight"] = new Dictionary<string, object>
+        {
+            ["activated"] = false
+        };
     });
 }
 else
@@ -117,6 +164,7 @@ else
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
+
 app.UseAuthentication();
 app.UseAuthorization();
 
