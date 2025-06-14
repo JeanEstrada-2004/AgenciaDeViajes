@@ -27,38 +27,27 @@ namespace AgenciaDeViajes.Controllers
                 .Include(r => r.Destinos)
                 .ToList();
 
-            // 2. Obtener destinos populares usando IA
-            var destinosPopulares = new List<Destino>();
-            foreach (var region in regiones)
+            // Convertimos cada Region en RegionView
+            var regionesView = regionesBD.Select(r => new RegionView
             {
-                foreach (var destino in region.Destinos)
+                id_region = r.id_region,
+                num_tours = r.num_tours,
+                desc_region = r.desc_region,
+                ImgReg_url = r.ImgReg_url,
+                Destinos = r.Destinos.Select(d => new DestinoView
                 {
-                    var prediccion = _ia.PredecirPopularidad(
-                        destino.id_destino,
-                        2,
-                        (float)destino.precio_tour
-                    );
+                    id_destino = d.id_destino,
+                    id_region = d.id_region,
+                    nom_destino = d.nom_destino,
+                    desc_destino = d.desc_destino,
+                    precio_tour = d.precio_tour,
+                    num_entradas = d.num_entradas,
+                    time_tour = d.time_tour,
+                    ImgDest_url = d.ImgDest_url
+                }).ToList()
+            }).ToList();
 
-                    if (prediccion.EsPopular)// ¡Así forzamos a que sí muestre!
-                    {
-                        destinosPopulares.Add(destino);
-                    }
-
-                    /* Console.WriteLine($"▶️ {destino.nom_destino} → " +
-                    $"Popular: {prediccion.EsPopular} | " +
-                    $"Probabilidad: {prediccion.Probability} | " +
-                    $"Score: {prediccion.Score}"); */
-                }
-            }
-
-            // 3. Crear ViewModel combinado
-            var viewModel = new RegionDestinoIAViewModel
-            {
-                Regiones = regiones,
-                DestinosPopulares = destinosPopulares.Take(4).ToList()
-            };
-            
-            return View(viewModel);
+            return View(regionesView);
         }
 
         // Mostrar detalles de un destino
