@@ -1,4 +1,4 @@
-@model List<AgenciaDeViajes.Models.ViewModels.RegionView>
+@model AgenciaDeViajes.Models.ViewModels.RegionDestinoIAViewModel
 @{
     Layout = "_Layout";
     ViewBag.Title = "Destinos a Visitar";
@@ -35,16 +35,62 @@
 </section>
 <!-- FIN DE BANNER -->
 
-<!-- INICIO DE LOS MEJORES DESTINOS DE VIAJE-->
+
+<!-- INICIO DE DESTINOS POPULARES CON IA -->
 <section class="ftco-section">
     <div class="container">
         <div class="row justify-content-center pb-4">
             <div class="col-md-12 heading-section text-center ftco-animate">
-                <h2 class="mb-4">Mejores Destinos</h2>
+                <h2 class="mb-4">Destinos Populares Recomendados por IA</h2>
+                <p class="text-muted">Tours seleccionados automáticamente según su popularidad estimada.</p>
             </div>
         </div>
         <div class="row">
-            @foreach (var region in Model.Take(4))
+            @foreach (var destino in Model.DestinosPopulares.Take(4))
+            {
+                var nombreSeo = destino.nom_destino.ToLower().Replace(" ", "-");
+
+                <div class="col-md-4 ftco-animate">
+                    <div class="project-wrap">
+                        <a asp-action="Details"
+                            asp-route-nombreSeo="@nombreSeo"
+                            class="img"
+                            style="background-image: url('@Url.Content(destino.ImgDest_url)');"></a>
+                        <div class="text p-4">
+                            <span class="price">S/. @destino.precio_tour.ToString("0.00") / persona</span>
+                            <span class="days">@destino.time_tour</span>
+                            <h3>
+                                <a asp-action="Details" asp-route-nombreSeo="@nombreSeo">
+                                    @destino.nom_destino
+                                </a>
+                            </h3>
+                            <ul>
+                                <li><span class="fas fa-ticket-alt"></span> @destino.num_entradas entradas</li>
+                                <li><span class="fas fa-clock"></span> @destino.time_tour</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+<!-- FIN DE DESTINOS POPULARES CON IA -->
+
+
+
+
+<!-- INICIO DE REGIONES PARA VIAJAR -->
+<section class="ftco-section bg-light">
+    <div class="container">
+        <div class="row justify-content-center pb-4">
+            <div class="col-md-12 heading-section text-center ftco-animate">
+                <h2 class="mb-4">Regiones para Viajar</h2>
+                <p class="text-muted">Explora por regiones y descubre lugares únicos.</p>
+            </div>
+        </div>
+        <div class="row">
+            @foreach (var region in Model.Regiones.Take(4))
             {
                 <div class="col-md-3 ftco-animate">
                     <div class="project-destination">
@@ -60,7 +106,8 @@
         </div>
     </div>
 </section>
-<!-- FIN DE LOS MEJORES DESTINOS DE VIAJE -->
+<!-- FIN DE REGIONES PARA VIAJAR -->
+
 
 <!-- SECCIÓN DE LA LISTA DE DESTINOS -->
 <section class="ftco-section ftco-no-pt">
@@ -71,7 +118,7 @@
             </div>
         </div>
         <div class="row">
-            @foreach (var region in Model)
+            @foreach (var region in Model.Regiones)
             {
                 foreach (var destino in region.Destinos)
                 {
@@ -82,16 +129,16 @@
                         <div class="project-wrap">
                             <!-- Imagen como enlace SEO -->
                             <a asp-action="Details"
-                               asp-route-nombreSeo="@nombreSeo"
-                               class="img"
-                               style="background-image: url('@Url.Content(destino.ImgDest_url)');"></a>
+                                asp-route-nombreSeo="@nombreSeo"
+                                class="img"
+                                style="background-image: url('@Url.Content(destino.ImgDest_url)');"></a>
                             <div class="text p-4">
                                 <span class="price">S/. @destino.precio_tour.ToString("0.00") / persona</span>
                                 <span class="days">@destino.time_tour</span>
                                 <!-- Nombre como enlace SEO -->
                                 <h3>
                                     <a asp-action="Details"
-                                       asp-route-nombreSeo="@nombreSeo">
+                                        asp-route-nombreSeo="@nombreSeo">
                                         @destino.nom_destino
                                     </a>
                                 </h3>
