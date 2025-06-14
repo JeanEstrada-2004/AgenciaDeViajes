@@ -28,7 +28,7 @@ namespace AgenciaDeViajes.Controllers
                 .ToList();
 
             // Convertimos cada Region en RegionView
-            var regionesView = regionesBD.Select(r => new RegionView
+            var regionesView = regiones.Select(r => new RegionView
             {
                 id_region = r.id_region,
                 num_tours = r.num_tours,

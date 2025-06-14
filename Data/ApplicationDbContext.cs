@@ -11,11 +11,6 @@ namespace AgenciaDeViajes.Data
         {
         }
 
-<<<<<<< HEAD
-
-
-=======
->>>>>>> contacto
         public DbSet<Region> Regiones { get; set; }
         public DbSet<Destino> Destinos { get; set; }
         public DbSet<Usuario> Usuarios { get; set; }
@@ -43,10 +38,6 @@ namespace AgenciaDeViajes.Data
 
             // Agrega aquí más relaciones si es necesario
         }
-<<<<<<< HEAD
-        
-        public DbSet<ReservaTour> ReservasTours { get; set; }
-=======
 
         protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
         {
@@ -54,7 +45,6 @@ namespace AgenciaDeViajes.Data
             configurationBuilder.Properties<DateTime>()
                 .HaveConversion(typeof(UtcValueConverter));
         }
->>>>>>> contacto
     }
 
     public class UtcValueConverter : Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter<DateTime, DateTime>
