@@ -5,6 +5,10 @@ using AgenciaDeViajes.Services;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.OpenApi.Models;
+using System.Reflection;
+using System.IO;
+using Microsoft.Extensions.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,22 +28,44 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options =>
 })
 .AddEntityFrameworkStores<ApplicationDbContext>();
 
-// Configuración de autenticación
-builder.Services.AddAuthentication(options =>
+// Configuración de autenticación con verificación de credenciales
+var googleAuthSection = builder.Configuration.GetSection("Authentication:Google");
+
+if (!string.IsNullOrEmpty(googleAuthSection["ClientId"]) && !string.IsNullOrEmpty(googleAuthSection["ClientSecret"]))
 {
-    options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
-})
-.AddCookie(options =>
+    builder.Services.AddAuthentication(options =>
+    {
+        options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
+    })
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/Login/Index";
+        options.AccessDeniedPath = "/Login/AccessDenied";
+    })
+    .AddGoogle(options =>
+    {
+        options.ClientId = googleAuthSection["ClientId"];
+        options.ClientSecret = googleAuthSection["ClientSecret"];
+        options.CallbackPath = "/signin-google";
+        
+        // Configuraciones adicionales para obtener más datos del usuario
+        options.SaveTokens = true;
+        options.Scope.Add("profile");
+        options.Scope.Add("email");
+    });
+}
+else
 {
-    options.LoginPath = "/Login/Index";
-})
-.AddGoogle(options =>
-{
-    options.ClientId = builder.Configuration["Authentication:Google:ClientId"];
-    options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
-    options.CallbackPath = "/signin-google";
-});
+    builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+        .AddCookie(options =>
+        {
+            options.LoginPath = "/Login/Index";
+            options.AccessDeniedPath = "/Login/AccessDenied";
+        });
+    
+    Console.WriteLine("Advertencia: Las credenciales de Google no están configuradas. Solo se habilitará autenticación con cookies.");
+}
 
 builder.Services.AddAuthorization();
 
@@ -49,19 +75,85 @@ builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddHttpClient<WeatherService>();
 builder.Services.AddSingleton<TourPopularityService>();
 
+// Configuración de Swagger
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Version = "v1",
+        Title = "Agencia de Viajes API",
+        Description = "API para gestión de tours, destinos y reservas",
+        Contact = new OpenApiContact
+        {
+            Name = "Equipo de Desarrollo",
+            Email = "soporte@agenciadeviajes.com",
+            Url = new Uri("https://github.com/JeanEstrada-2004/AgenciaDeViajes")
+        }
+    });
+
+    // Habilita anotaciones de Swagger
+    c.EnableAnnotations();
+
+    // Configuración de seguridad para JWT (opcional)
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description = "JWT Authorization header using the Bearer scheme",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer"
+    });
+
+    // Configuración del archivo XML de documentación
+    try
+    {
+        var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+        var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+        
+        if (File.Exists(xmlPath))
+        {
+            c.IncludeXmlComments(xmlPath);
+        }
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Error al cargar documentación XML: {ex.Message}");
+    }
+});
+
 var app = builder.Build();
 
 // Aplicar migraciones
 using (var scope = app.Services.CreateScope())
 {
-    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    db.Database.Migrate();
+    var services = scope.ServiceProvider;
+    try
+    {
+        var db = services.GetRequiredService<ApplicationDbContext>();
+        db.Database.Migrate();
+        
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "Error al aplicar migraciones");
+    }
 }
 
 // Configuración del pipeline HTTP
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Agencia de Viajes API v1");
+        c.RoutePrefix = "api-docs";
+        c.ConfigObject.AdditionalItems["syntaxHighlight"] = new Dictionary<string, object>
+        {
+            ["activated"] = false
+        };
+    });
 }
 else
 {
@@ -72,6 +164,7 @@ else
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
+
 app.UseAuthentication();
 app.UseAuthorization();
 
@@ -79,14 +172,12 @@ app.UseAuthorization();
 app.MapControllerRoute(
     name: "destinosLista",
     pattern: "ListaTours/Destination",
-    defaults: new { controller = "ListaTours", action = "Destination" }
-);
+    defaults: new { controller = "ListaTours", action = "Destination" });
 
 app.MapControllerRoute(
     name: "detallesDestinoSeo",
     pattern: "ListaTours/{nombreSeo}",
-    defaults: new { controller = "ListaTours", action = "Details" }
-);
+    defaults: new { controller = "ListaTours", action = "Details" });
 
 app.MapControllerRoute(
     name: "default",
