@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Authorization;
 using AgenciaDeViajes.Data;
 using AgenciaDeViajes.Models;
 using AgenciaDeViajes.ViewModels;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 
 namespace AgenciaDeViajes.Controllers
@@ -237,6 +239,8 @@ namespace AgenciaDeViajes.Controllers
         // ============================
         // Estadísticas del Admin
         // ============================
+
+
         public IActionResult Estadisticas()
         {
             var usuarios = _context.Usuarios.ToList();
@@ -257,7 +261,102 @@ namespace AgenciaDeViajes.Controllers
             return View(viewModel);
         }
 
+        /* ESTE CÓDIGO SE TIENE QUE REEMPLAZAR POR EL DE ARRIBA, CUANDO LA FUNCIÓN DE RESERVAS ESTÉ LISTA */
+        /* public IActionResult Estadisticas()
+        {
+            var usuarios = _context.Usuarios.ToList();
+            var reservas = _context.Reservas.ToList();
 
+            var agrupadoPorMes = usuarios
+                .GroupBy(u => new { u.FechaRegistro.Year, u.FechaRegistro.Month })
+                .OrderBy(g => g.Key.Year).ThenBy(g => g.Key.Month)
+                .Select(g => new
+                {
+                    Mes = $"{g.Key.Month:D2}/{g.Key.Year}",
+                    Total = g.Count()
+                }).ToList();
+
+            var resumen = new AdminEstadisticasViewModel
+            {
+                TotalUsuarios = usuarios.Count,
+                TotalClientes = usuarios.Count(u => u.Rol == "Cliente"),
+                TotalAdmins = usuarios.Count(u => u.Rol == "Admin"),
+                TotalRegiones = _context.Regiones.Count(),
+                TotalDestinos = _context.Destinos.Count()
+            };
+
+            var usuariosConReservas = reservas
+                .Select(r => r.UsuarioId)
+                .Distinct()
+                .ToList();
+
+            var nombresUsuarios = _context.Usuarios
+                .Where(u => usuariosConReservas.Contains(u.IdUsuario))
+                .Select(u => u.NombreUsuario)
+                .ToList();
+
+            var viewModel = new AdminPanelViewModel
+            {
+                Resumen = resumen,
+                UsuariosPorMes = new UsuariosPorMesViewModel
+                {
+                    Meses = agrupadoPorMes.Select(x => x.Mes).ToList(),
+                    Totales = agrupadoPorMes.Select(x => x.Total).ToList()
+                },
+                TotalBoletosVendidos = reservas.Sum(r => r.CantidadAdultos + r.CantidadNinos),
+                UsuariosQueCompraron = nombresUsuarios
+            };
+
+            return View(viewModel);
+        } */
+
+
+        // ============================
+        // Configuración del Admin
+        // ============================
+
+
+        [HttpGet]
+        public IActionResult Configuracion()
+        {
+            string email = User.Identity?.Name;
+            if (string.IsNullOrEmpty(email)) return RedirectToAction("Index", "Login");
+
+            var usuario = _context.Usuarios.FirstOrDefault(u => u.NombreUsuario == email);
+            if (usuario == null) return NotFound();
+
+            return View(usuario);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Configuracion(Usuario actualizado)
+        {
+            var usuarioDb = _context.Usuarios.FirstOrDefault(u => u.IdUsuario == actualizado.IdUsuario);
+            if (usuarioDb == null) return NotFound();
+
+            usuarioDb.NombreCompleto = actualizado.NombreCompleto;
+            usuarioDb.Telefono = actualizado.Telefono;
+            usuarioDb.DNI = actualizado.DNI;
+            usuarioDb.FechaNacimiento = actualizado.FechaNacimiento;
+            usuarioDb.Contrasena = actualizado.Contrasena;
+
+            _context.SaveChanges();
+
+            TempData["MensajeExito"] = "Datos actualizados correctamente.";
+            return RedirectToAction("Configuracion");
+        }
+
+        // ============================
+        // Cerrar sesión
+        // ============================
+        
+        [HttpGet]
+        public async Task<IActionResult> Logout()
+        {
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            return RedirectToAction("Index", "Home");
+        }
     }
 
 }

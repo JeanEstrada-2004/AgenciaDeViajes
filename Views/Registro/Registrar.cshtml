@@ -8,12 +8,13 @@
 
 @section Styles {
     <link rel="stylesheet" href="~/css/registro.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 }
 
 <div class="auth-container">
     <div class="auth-card">
         <div class="auth-header bg-success">
-            <h2>Crear Cuenta</h2>
+            <h2><i class="fas fa-user-plus"></i> Crear Cuenta</h2>
             <p>Completa tus datos para registrarte</p>
         </div>
         <div class="auth-body">
@@ -21,38 +22,51 @@
                 @Html.AntiForgeryToken()
 
                 <div class="form-group">
-                    <label asp-for="NombreCompleto"></label>
+                    <label asp-for="NombreCompleto"><i class="fas fa-user"></i> Nombre Completo</label>
                     <input asp-for="NombreCompleto" class="form-control" required placeholder="Ingresa tu nombre completo" />
                 </div>
 
                 <div class="form-group">
-                    <label asp-for="NombreUsuario">Correo electrónico:</label>
+                    <label asp-for="NombreUsuario"><i class="fas fa-envelope"></i> Correo electrónico:</label>
                     <input asp-for="NombreUsuario" class="form-control" type="email" required placeholder="tucorreo@email.com" />
                 </div>
 
                 <div class="form-group">
-                    <label asp-for="DNI"></label>
-                    <input asp-for="DNI" class="form-control" required />
+                    <label asp-for="DNI"><i class="fas fa-id-card"></i> DNI</label>
+                    <input asp-for="DNI" class="form-control" required placeholder="Número de documento" />
                 </div>
 
                 <div class="form-group">
-                    <label asp-for="Telefono"></label>
-                    <input asp-for="Telefono" class="form-control" />
+                    <label asp-for="Telefono"><i class="fas fa-phone"></i> Teléfono</label>
+                    <input asp-for="Telefono" class="form-control" placeholder="Número de contacto" />
                 </div>
 
                 <div class="form-group">
-                    <label asp-for="FechaNacimiento"></label>
+                    <label asp-for="FechaNacimiento"><i class="fas fa-birthday-cake"></i> Fecha de Nacimiento</label>
                     <input asp-for="FechaNacimiento" class="form-control" type="date" />
                 </div>
 
                 <div class="form-group">
-                    <label asp-for="Contrasena"></label>
-                    <input asp-for="Contrasena" class="form-control" type="password" required placeholder="Crea una contraseña" />
+                    <label asp-for="Contrasena"><i class="fas fa-lock"></i> Contraseña</label>
+                    <div class="input-group">
+                        <input asp-for="Contrasena" class="form-control" type="password" required id="registerPassword" 
+                               placeholder="Crea una contraseña" />
+                        <button class="btn btn-outline-secondary" type="button" id="toggleRegisterPassword">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
                 </div>
 
                 <div class="form-group">
-                    <label for="confirmarContrasena">Confirmar Contraseña:</label>
-                    <input name="confirmarContrasena" type="password" class="form-control" required placeholder="Repite tu contraseña" />
+                    <label for="confirmarContrasena"><i class="fas fa-lock"></i> Confirmar Contraseña:</label>
+                    <div class="input-group">
+                        <input name="confirmarContrasena" type="password" class="form-control" required 
+                               id="confirmPassword" placeholder="Repite tu contraseña" />
+                        <button class="btn btn-outline-secondary" type="button" id="toggleConfirmPassword">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <small id="passwordMatchMessage" class="form-text"></small>
                 </div>
 
                 <div class="form-group form-check">
@@ -60,17 +74,66 @@
                     <label for="terminos" class="form-check-label">Acepto los términos y condiciones</label>
                 </div>
 
-                <button type="submit" class="btn btn-success btn-block">Registrarse</button>
+                <button type="submit" class="btn btn-success btn-block">
+                    <i class="fas fa-user-check"></i> Registrarse
+                </button>
             </form>
 
             @if (ViewBag.Error != null)
             {
-                <div class="alert alert-danger mt-3">@ViewBag.Error</div>
+                <div class="alert alert-danger mt-3">
+                    <i class="fas fa-exclamation-circle"></i> @ViewBag.Error
+                </div>
             }
 
             <div class="auth-footer">
-                <p>¿Ya tienes una cuenta? <a asp-controller="Login" asp-action="Index">Inicia sesión aquí</a></p>
+                <p>¿Ya tienes una cuenta? <a asp-controller="Login" asp-action="Index"><i class="fas fa-sign-in-alt"></i> Inicia sesión aquí</a></p>
             </div>
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        // Función para mostrar/ocultar contraseña
+        function setupPasswordToggle(passwordId, toggleId) {
+            document.getElementById(toggleId).addEventListener('click', function() {
+                const passwordInput = document.getElementById(passwordId);
+                const icon = this.querySelector('i');
+                
+                if (passwordInput.type === 'password') {
+                    passwordInput.type = 'text';
+                    icon.classList.replace('fa-eye', 'fa-eye-slash');
+                } else {
+                    passwordInput.type = 'password';
+                    icon.classList.replace('fa-eye-slash', 'fa-eye');
+                }
+            });
+        }
+
+        // Configurar los toggles de contraseña
+        setupPasswordToggle('registerPassword', 'toggleRegisterPassword');
+        setupPasswordToggle('confirmPassword', 'toggleConfirmPassword');
+
+        // Validación visual de coincidencia de contraseñas
+        document.getElementById('confirmPassword').addEventListener('input', function() {
+            const password = document.getElementById('registerPassword').value;
+            const confirmPassword = this.value;
+            const messageElement = document.getElementById('passwordMatchMessage');
+            
+            if (confirmPassword === '') {
+                messageElement.textContent = '';
+                messageElement.className = 'form-text';
+                return;
+            }
+            
+            if (password === confirmPassword) {
+                messageElement.textContent = 'Las contraseñas coinciden';
+                messageElement.className = 'form-text text-success';
+            } else {
+                messageElement.textContent = 'Las contraseñas no coinciden';
+                messageElement.className = 'form-text text-danger';
+            }
+        });
+    </script>
+}

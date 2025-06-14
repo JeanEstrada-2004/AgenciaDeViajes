@@ -1,5 +1,4 @@
-
-@model AgenciaDeViajes.ViewModels.UsuariosPorMesViewModel
+@model AgenciaDeViajes.ViewModels.AdminPanelViewModel
 
 @{
     ViewData["Title"] = "Estadísticas del Sistema";
@@ -9,28 +8,91 @@
 
 @section Styles {
     <style>
-        .chart-container {
-            max-width: 800px;
+        .chart-container, .stats-container {
+            max-width: 900px;
             margin: 40px auto;
             padding: 20px;
             background-color: #fff;
             border-radius: 8px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .stat-box {
+            background: #f8f9fa;
+            border-left: 5px solid #007bff;
+            padding: 15px;
+            border-radius: 6px;
+        }
+
+        .stat-box h4 {
+            margin: 0 0 5px;
+        }
+
+        .users-list {
+            margin-top: 20px;
+            padding-left: 20px;
+        }
     </style>
 }
 
-<div class="admin-actions">
+<div class="admin-actions text-center mb-3">
     <a href="@Url.Action("Panel", "Admin")" class="btn btn-info btn-admin-panel">
         <i class="fas fa-cog"></i> Panel Principal
     </a>
 </div>
 
-<div class="chart-container">
+<div class="stats-container">
+    <h3 class="text-center mb-4">Resumen General del Sistema</h3>
+
+    <div class="stats-grid">
+        <div class="stat-box">
+            <h4>Total Usuarios</h4>
+            <p>@Model.Resumen.TotalUsuarios</p>
+        </div>
+        <div class="stat-box">
+            <h4>Total Clientes</h4>
+            <p>@Model.Resumen.TotalClientes</p>
+        </div>
+        <div class="stat-box">
+            <h4>Total Administradores</h4>
+            <p>@Model.Resumen.TotalAdmins</p>
+        </div>
+        <div class="stat-box">
+            <h4>Regiones Registradas</h4>
+            <p>@Model.Resumen.TotalRegiones</p>
+        </div>
+        <div class="stat-box">
+            <h4>Destinos Registrados</h4>
+            <p>@Model.Resumen.TotalDestinos</p>
+        </div>
+        <div class="stat-box">
+            <h4>Boletos Vendidos</h4>
+            <p>@Model.TotalBoletosVendidos</p>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <h5>Usuarios que realizaron al menos una compra:</h5>
+        <ul class="users-list">
+            @foreach (var usuario in Model.UsuariosQueCompraron)
+            {
+                <li><i class="fas fa-user"></i> @usuario</li>
+            }
+        </ul>
+    </div>
+</div>
+
+<div class="chart-container mt-5">
     <h3 class="text-center mb-4">Usuarios Registrados por Mes</h3>
     <canvas id="usuariosPorMesChart" width="800" height="400"></canvas>
 </div>
-
 
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -39,10 +101,10 @@
         const chart = new Chart(ctx, {
             type: 'bar',
             data: {
-                labels: @Html.Raw(Json.Serialize(Model.Meses)),
+                labels: @Html.Raw(Json.Serialize(Model.UsuariosPorMes.Meses)),
                 datasets: [{
                     label: 'Usuarios Registrados',
-                    data: @Html.Raw(Json.Serialize(Model.Totales)),
+                    data: @Html.Raw(Json.Serialize(Model.UsuariosPorMes.Totales)),
                     backgroundColor: 'rgba(54, 162, 235, 0.7)',
                     borderColor: 'rgba(54, 162, 235, 1)',
                     borderWidth: 1
