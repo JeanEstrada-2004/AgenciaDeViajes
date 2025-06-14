@@ -7,13 +7,13 @@ namespace AgenciaDeViajes.Models
     public class Usuario
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)] // ✅ AUTOINCREMENT para evitar errores con PK
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int IdUsuario { get; set; }
 
         [Required]
         [EmailAddress]
         [StringLength(100)]
-        public string NombreUsuario { get; set; }  // Será el correo
+        public string NombreUsuario { get; set; }  // Correo
 
         [Required]
         [StringLength(150)]
@@ -24,7 +24,6 @@ namespace AgenciaDeViajes.Models
 
         [StringLength(20)]
         public string? DNI { get; set; }
-
 
         public DateTime? FechaNacimiento { get; set; }
 
@@ -41,5 +40,8 @@ namespace AgenciaDeViajes.Models
 
         public DateTime FechaRegistro { get; set; } = DateTime.UtcNow;
 
+        [Required]
+        public bool CorreoConfirmado { get; set; } = false;  // ✅ NUEVA COLUMNA
     }
+
 }

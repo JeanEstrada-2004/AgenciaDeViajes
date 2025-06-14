@@ -1,58 +1,24 @@
-@using AgenciaDeViajes.Models
-@model List<Festividad>
+@{
+    ViewData["Title"] = "Festividades del Perú";
+}
 
-<!-- Espaciado extra antes de la sección -->
-<div style="margin-top: 120px;"></div>
+<link rel="stylesheet" href="~/css/festividades.css" />
 
-<section class="container">
-    <h2 class="mb-4">Festividades</h2>
+<div class="festival-header text-center">
+    <div class="container">
+        <h2 class="display-4">Festividades del Perú</h2>
+        <p class="lead">Descubre la riqueza cultural de nuestro país a través de sus coloridas celebraciones</p>
+    </div>
+</div>
 
-    @if (Model == null || !Model.Any())
-    {
-        <p>No se encontraron festividades.</p>
-    }
-    else
-    {
-        @foreach (var fest in Model)
-        {
-            <div class="card mb-4 shadow-sm">
-                <div class="card-body">
-                    <h3 class="card-title">@fest.Nombre (@fest.Fecha.ToShortDateString())</h3>
-                    <p><strong>Tipo:</strong> @fest.Tipo</p>
-                    <p>@fest.Descripcion</p>
-                    <p><strong>Lugar:</strong> @fest.Lugar</p>
+<div class="container">
+    <div id="festividades-container">
+        <div class="loading-spinner">
+            <div class="spinner"></div>
+        </div>
+    </div>
+</div>
 
-                    @if (!string.IsNullOrEmpty(fest.ImagenUrl))
-                    {
-                        <img src="@fest.ImagenUrl" alt="Imagen de la festividad" class="img-fluid mb-3" style="max-width: 300px;" />
-                    }
-
-                    @if (fest.Eventos != null && fest.Eventos.Any())
-                    {
-                        <h4>Eventos</h4>
-                        <ul>
-                            @foreach (var ev in fest.Eventos)
-                            {
-                                <li>
-                                    <strong>@ev.Nombre:</strong> @ev.Descripcion (@ev.Hora?.ToString(@"hh\:mm"))
-                                    @if (ev.Actividades != null && ev.Actividades.Any())
-                                    {
-                                        <ul>
-                                            @foreach (var act in ev.Actividades)
-                                            {
-                                                <li>
-                                                    @act.Nombre: @act.Descripcion
-                                                    (@act.HoraInicio?.ToString(@"hh\:mm") - @act.HoraFin?.ToString(@"hh\:mm"))
-                                                </li>
-                                            }
-                                        </ul>
-                                    }
-                                </li>
-                            }
-                        </ul>
-                    }
-                </div>
-            </div>
-        }
-    }
-</section>
+@section Scripts {
+    <script src="~/js/festividades.js"></script>
+}

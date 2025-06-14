@@ -1,0 +1,20 @@
+[
+  {
+    "nombre": "Fiesta de la Candelaria",
+    "fecha": "2024-02-02",
+    "ubicacion": "Puno",
+    "descripcion": "Una de las festividades religiosas y culturales más grandes del Perú...",
+    "motivo": "Homenaje a la Virgen de la Candelaria.",
+    "acceso": "Libre acceso. Se recomienda reservar alojamiento con anticipación.",
+    "imagenUrl": "/images/candelaria.jpg"
+  },
+  {
+    "nombre": "Carnavales Andinos",
+    "fecha": "2024-03-04",
+    "ubicacion": "Ayacucho",
+    "descripcion": "Celebración llena de música, danzas, juegos con agua y talco...",
+    "motivo": "Celebración tradicional agrícola y festiva.",
+    "acceso": "Libre acceso. Eventos especiales con entrada.",
+    "imagenUrl": "/images/carnavales.jpg"
+  }
+]
