@@ -7,13 +7,17 @@ namespace AgenciaDeViajes.Models
     public class ReservaServicioAdicional
     {
         [Key]
+        [Column("Id")]
         public int Id { get; set; }
 
         [Required]
+        [Column("IdReserva")]
         public int IdReserva { get; set; }
 
-        [Required]
-        [MaxLength(100)]
-        public string Servicio { get; set; } = "";
+        [Column("Servicio")]
+        public string Servicio { get; set; }
+
+        [ForeignKey("IdReserva")]
+        public virtual Reserva Reserva { get; set; }
     }
 }

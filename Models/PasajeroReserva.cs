@@ -7,26 +7,29 @@ namespace AgenciaDeViajes.Models
     public class PasajeroReserva
     {
         [Key]
+        [Column("IdPasajero")]
         public int IdPasajero { get; set; }
 
         [Required]
+        [Column("IdReserva")]
         public int IdReserva { get; set; }
 
-        [Required]
-        [MaxLength(10)]
-        public string Tipo { get; set; } = ""; // "Adulto" o "Niño"
+        [Column("Tipo")]
+        public string Tipo { get; set; }
 
-        [Required]
-        [MaxLength(150)]
-        public string NombreCompleto { get; set; } = "";
+        [Column("NombreCompleto")]
+        public string NombreCompleto { get; set; }
 
-        [MaxLength(50)]
-        public string? Documento { get; set; }
+        [Column("Documento")]
+        public string Documento { get; set; }
 
-        [MaxLength(20)]
-        public string? Telefono { get; set; }
+        [Column("Telefono")]
+        public string Telefono { get; set; }
 
-        [MaxLength(50)]
-        public string? Pais { get; set; }
+        [Column("Pais")]
+        public string Pais { get; set; }
+
+        [ForeignKey("IdReserva")]
+        public virtual Reserva Reserva { get; set; }
     }
 }

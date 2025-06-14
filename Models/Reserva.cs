@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -55,8 +56,13 @@ namespace AgenciaDeViajes.Models
         [MaxLength(100)]
         public string? ReferenciaPago { get; set; }
 
-        // Relación Destino (asegúrate de que tu modelo Destino usa id_destino en la BD)
         [ForeignKey("IdDestino")]
         public virtual Destino Destino { get; set; }
+
+        [InverseProperty("Reserva")]
+        public virtual ICollection<PasajeroReserva> PasajerosReserva { get; set; }
+
+        [InverseProperty("Reserva")]
+        public virtual ICollection<ReservaServicioAdicional> ReservaServiciosAdicionales { get; set; }
     }
 }

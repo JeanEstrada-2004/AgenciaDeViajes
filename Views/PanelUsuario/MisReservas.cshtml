@@ -20,6 +20,8 @@
                         <th>Destino</th>
                         <th>Fecha</th>
                         <th>Pasajeros</th>
+                        <th>Pasajeros Detalle</th>
+                        <th>Servicios Adicionales</th>
                         <th>Estado</th>
                         <th>Acciones</th>
                     </tr>
@@ -35,6 +37,40 @@
                             <td>
                                 @reserva.CantidadAdultos adulto(s)
                                 @if(reserva.CantidadNinos > 0) { <text>, @reserva.CantidadNinos niño(s)</text> }
+                            </td>
+                            <td>
+                                @if (reserva.PasajerosReserva != null && reserva.PasajerosReserva.Any())
+                                {
+                                    foreach (var p in reserva.PasajerosReserva)
+                                    {
+                                        <div class="mb-2" style="padding-left: 8px; border-left: 3px solid #6c63ff;">
+                                            <span class="fw-bold">@p.NombreCompleto</span>
+                                            <span class="text-muted">(@p.Tipo)</span><br />
+                                            <span><strong>DNI:</strong> @p.Documento</span><br />
+                                            <span><strong>Teléfono:</strong> @p.Telefono</span><br />
+                                            <span><strong>País:</strong> @p.Pais</span>
+                                        </div>
+                                    }
+                                }
+                                else
+                                {
+                                    <span class="text-muted">Sin pasajeros registrados</span>
+                                }
+                            </td>
+                            <td>
+                                @if (reserva.ReservaServiciosAdicionales != null && reserva.ReservaServiciosAdicionales.Any())
+                                {
+                                    <ul class="mb-0">
+                                        @foreach (var s in reserva.ReservaServiciosAdicionales)
+                                        {
+                                            <li>@s.Servicio</li>
+                                        }
+                                    </ul>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">Ninguno</span>
+                                }
                             </td>
                             <td>
                                 @if (reserva.Estado == "Confirmada")
@@ -63,7 +99,7 @@
                 else
                 {
                     <tr>
-                        <td colspan="5" class="text-center text-muted">No tienes reservas registradas.</td>
+                        <td colspan="7" class="text-center text-muted">No tienes reservas registradas.</td>
                     </tr>
                 }
                 </tbody>

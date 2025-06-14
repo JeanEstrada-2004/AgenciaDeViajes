@@ -75,6 +75,8 @@ namespace AgenciaDeViajes.Controllers
 
             var reservas = _context.Reservas
                 .Include(r => r.Destino)
+                .Include(r => r.PasajerosReserva)
+                .Include(r => r.ReservaServiciosAdicionales)
                 .Where(r => r.IdUsuario == usuario.IdUsuario)
                 .OrderByDescending(r => r.FechaTour)
                 .ToList();
